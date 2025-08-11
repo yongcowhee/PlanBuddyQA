@@ -16,6 +16,11 @@ public class TestBase {
     XCUITestOptions options = new XCUITestOptions();
     static IOSDriver driver;
 
+    static int timeLineLeftX = 96;
+    static int timeLineLeftY = 756;
+    static int eventBlankX = 376;
+    static int eventBlankY = 598;
+
     @BeforeEach
     public void setup() throws MalformedURLException {
         options.setPlatformName("iOS");
@@ -38,11 +43,22 @@ public class TestBase {
         }
     }
 
-    public static void touchByCoordinate(int x, int y) {
+    public static void touchTimeLineLeftSpace() {
         PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
         Sequence tap = new Sequence(finger, 1);
 
-        tap.addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), x, y));
+        tap.addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), timeLineLeftX, timeLineLeftY));
+        tap.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+        tap.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+        driver.perform(Arrays.asList(tap));
+    }
+
+    public static void touchEventBlankSpace() {
+        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+        Sequence tap = new Sequence(finger, 1);
+
+        tap.addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), eventBlankX, eventBlankY));
         tap.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
         tap.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
 
