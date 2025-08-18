@@ -117,8 +117,8 @@ public class EventTest extends TestBase {
             comment.sendKeys("미래 이벤트 생성 테스트 - 설명 추가 및 이모지 테스트❤️");
 
             // 오늘 날짜를 기준으로 3일 전 미래 날짜 지정
-            String specificPastDate = getSpecificDate(3);
-            String futureDateXpath = "//XCUIElementTypeButton[contains(@name, '" + specificPastDate + "')]";
+            String specificFutureDate = getSpecificDate(3);
+            String futureDateXpath = "//XCUIElementTypeButton[contains(@name, '" + specificFutureDate + "')]";
 
             startDatePicker = getStartDatePicker();
             startDatePicker.click();
