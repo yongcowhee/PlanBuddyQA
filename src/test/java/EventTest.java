@@ -67,20 +67,19 @@ public class EventTest extends TestBase {
             comment.click();
             comment.sendKeys("과거 이벤트 생성 테스트 - 설명 추가");
 
+            startDatePicker = getStartDatePicker();
+            startDatePicker.click();
+
             // 오늘 날짜를 기준으로 3일 전 과거 날짜 지정
             String specificPastDate = getSpecificDate(-3);
             String pastDateXpath = "//XCUIElementTypeButton[contains(@name, '" + specificPastDate + "')]";
-
-            startDatePicker = driver.findElement(xpath("(//XCUIElementTypeButton[@name=\"날짜 선택기\"])[1]"));
-            startDatePicker.click();
-
             WebElement pastStartDate = driver.findElement(xpath(pastDateXpath));
             pastStartDate.click();
 
             // 빈 공간 터치로 다음 작업 진행
             touchEventBlankSpace();
 
-            endDatePicker = driver.findElement(xpath("(//XCUIElementTypeButton[@name=\"날짜 선택기\"])[2]"));
+            endDatePicker = getEndDatePicker();
             endDatePicker.click();
 
             WebElement pastEndDate = driver.findElement(xpath(pastDateXpath));
@@ -121,7 +120,7 @@ public class EventTest extends TestBase {
             String specificPastDate = getSpecificDate(3);
             String futureDateXpath = "//XCUIElementTypeButton[contains(@name, '" + specificPastDate + "')]";
 
-            startDatePicker = driver.findElement(xpath("(//XCUIElementTypeButton[@name=\"날짜 선택기\"])[1]"));
+            startDatePicker = getStartDatePicker();
             startDatePicker.click();
 
             WebElement futureStartDate = driver.findElement(xpath(futureDateXpath));
@@ -130,7 +129,7 @@ public class EventTest extends TestBase {
             // 빈 공간 터치로 다음 작업 진행
             touchEventBlankSpace();
 
-            endDatePicker = driver.findElement(xpath("(//XCUIElementTypeButton[@name=\"날짜 선택기\"])[2]"));
+            endDatePicker = getEndDatePicker();
             endDatePicker.click();
 
             WebElement futureEndDate = driver.findElement(xpath(futureDateXpath));

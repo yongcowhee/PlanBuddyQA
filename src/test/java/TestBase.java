@@ -2,6 +2,7 @@ import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.ios.options.XCUITestOptions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
 
@@ -11,6 +12,8 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+
+import static org.openqa.selenium.By.xpath;
 
 public class TestBase {
     XCUITestOptions options = new XCUITestOptions();
@@ -105,5 +108,13 @@ public class TestBase {
         swipe.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
 
         driver.perform(Arrays.asList(swipe));
+    }
+
+    public static WebElement getStartDatePicker() {
+        return driver.findElement(xpath("(//XCUIElementTypeButton[@name=\"날짜 선택기\"])[1]"));
+    }
+
+    public static WebElement getEndDatePicker() {
+        return driver.findElement(xpath("(//XCUIElementTypeButton[@name=\"날짜 선택기\"])[2]"));
     }
 }
