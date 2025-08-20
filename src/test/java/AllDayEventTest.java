@@ -71,5 +71,85 @@ public class AllDayEventTest extends TestBase {
 
             assertEquals(Integer.parseInt(allDayCountAfter), Integer.parseInt(allDayCountBefore) + 1);
         }
+
+        @Test
+        public void 과거_올데이_이벤트_생성() {
+            // 과거 일자로 이동해 기존 올데이 이벤트 개수 파악 및 저장
+            for (int i = 0; i < 3; i++) {
+                swipeRight();
+            }
+
+            allDayCountBefore = getCurAllDayCount();
+
+            // 다시 현재로 복귀
+            for (int i = 0; i < 3; i++) {
+                swipeLeft();
+            }
+
+            touchTimeLineLeftSpace();
+
+            WebElement allDay = driver.findElement(xpath("//XCUIElementTypeButton[@name=\"calendar\"]"));
+            allDay.click();
+
+            newEvent = driver.findElement(accessibilityId("새로운 이벤트"));
+            newEvent.sendKeys("과거 올데이 이벤트 생성");
+
+            comment = driver.findElement(xpath("//XCUIElementTypeTextView"));
+            comment.sendKeys("과거 올데이 이벤트 설명 추가");
+
+            // 과거 일자로 조정
+            String specificPastDate = getSpecificDate(-3);
+            startDatePicker = getStartDatePicker();
+            startDatePicker.click();
+
+            String pastDateXpath = "//XCUIElementTypeButton[contains(@name, '" + specificPastDate + "')]";
+            WebElement pastDate = driver.findElement(xpath(pastDateXpath));
+
+            pastDate.click();
+
+            touchEventBlankSpace();
+
+            endDatePicker = getEndDatePicker();
+            endDatePicker.click();
+
+            WebElement pastEndDate = driver.findElement(xpath(pastDateXpath));
+            pastEndDate.click();
+
+            touchEventBlankSpace();
+
+            check = driver.findElement(accessibilityId("checkmark"));
+            check.click();
+
+            // 과거 위치로 이동
+            for (int i = 0; i < 3; i++) {
+                swipeRight();
+            }
+
+            // 올데이 이벤트 생성 검증
+            WebElement allDayEventStorage = driver.findElement(xpath("(//XCUIElementTypeImage[@name=\"calendar\"])[1]"));
+            allDayEventStorage.click();
+
+            driver.findElement(accessibilityId("과거 올데이 이벤트 생성"));
+
+            allDayCountAfter = getCurAllDayCount();
+
+            assertEquals(Integer.parseInt(allDayCountAfter), Integer.parseInt(allDayCountBefore) + 1);
+        }
+    }
+
+    private String getCurAllDayCount() {
+        List<WebElement> eventAllNumbers = driver.findElements(
+                AppiumBy.iOSNsPredicateString("type == 'XCUIElementTypeStaticText' AND name MATCHES '\\\\d+'"));
+
+        String curAllDayCount = "";
+
+        for (WebElement el : eventAllNumbers) {
+            int y = el.getRect().y;
+            if (y <= 100) {
+                curAllDayCount = el.getAttribute("name");
+                return curAllDayCount;
+            }
+        }
+        return curAllDayCount;
     }
 }
