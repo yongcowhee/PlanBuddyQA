@@ -26,16 +26,7 @@ public class AllDayEventTest extends TestBase {
 
         @Test
         public void 당일_올데이_이벤트_생성() {
-            List<WebElement> beforeCreateEventAllNumbers = driver.findElements(
-                    AppiumBy.iOSNsPredicateString("type == 'XCUIElementTypeStaticText' AND name MATCHES '\\\\d+'"));
-
-            for (WebElement el : beforeCreateEventAllNumbers) {
-                int y = el.getRect().y;
-                if (y <= 100) {
-                    allDayCountBefore = el.getAttribute("name");
-                    break;
-                }
-            }
+            allDayCountBefore = getCurAllDayCount();
 
             touchTimeLineLeftSpace();
 
@@ -58,16 +49,7 @@ public class AllDayEventTest extends TestBase {
 
             driver.findElement(accessibilityId("당일 올데이 이벤트 생성"));
 
-            List<WebElement> afterCreateEventAllNumbers = driver.findElements(
-                    AppiumBy.iOSNsPredicateString("type == 'XCUIElementTypeStaticText' AND name MATCHES '\\\\d+'"));
-
-            for (WebElement el : afterCreateEventAllNumbers) {
-                int y = el.getRect().y;
-                if (y <= 100) {
-                    allDayCountAfter = el.getAttribute("name");
-                    break;
-                }
-            }
+            allDayCountAfter = getCurAllDayCount();
 
             assertEquals(Integer.parseInt(allDayCountAfter), Integer.parseInt(allDayCountBefore) + 1);
         }
