@@ -9,6 +9,7 @@ import java.util.List;
 import static io.appium.java_client.AppiumBy.accessibilityId;
 import static io.appium.java_client.AppiumBy.xpath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class AllDayEventTest extends TestBase {
     WebElement newEvent;
@@ -181,6 +182,25 @@ public class AllDayEventTest extends TestBase {
 
             assertEquals(Integer.parseInt(allDayCountAfter), Integer.parseInt(allDayCountBefore) + 1);
         }
+    }
+
+    @Test
+    public void 올데이_이벤트_시작_날짜와_종료_날짜가_역전되는_경우() {
+        touchTimeLineLeftSpace();
+
+        allDay = driver.findElement(xpath("//XCUIElementTypeButton[@name=\"calendar\"]"));
+        allDay.click();
+
+        endDatePicker = getEndDatePicker();
+        endDatePicker.click();
+
+        // 현재 날짜로부터 3일 전 날짜 계산 (과거)
+        String specificPastDate = getSpecificDate(-3);
+
+        String pastDateXpath = "//XCUIElementTypeButton[contains(@name, '" + specificPastDate + "')]";
+        WebElement pastDate = driver.findElement(xpath(pastDateXpath));
+
+        assertFalse(pastDate.isEnabled());
     }
 
     private String getCurAllDayCount() {
