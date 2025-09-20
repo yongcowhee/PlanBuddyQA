@@ -6,8 +6,7 @@ import org.openqa.selenium.WebElement;
 
 import java.util.List;
 
-import static io.appium.java_client.AppiumBy.accessibilityId;
-import static io.appium.java_client.AppiumBy.xpath;
+import static io.appium.java_client.AppiumBy.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -201,6 +200,52 @@ public class AllDayEventTest extends TestBase {
         WebElement pastDate = driver.findElement(xpath(pastDateXpath));
 
         assertFalse(pastDate.isEnabled());
+    }
+
+    @Test
+    public void 올데이_이벤트를_여러_일자에_걸쳐서_생성하는_경우() {
+        touchTimeLineLeftSpace();
+
+        allDay = driver.findElement(xpath("//XCUIElementTypeButton[@name=\"calendar\"]"));
+        allDay.click();
+
+        endDatePicker = getEndDatePicker();
+        endDatePicker.click();
+
+        // 현재 날짜로부터 3일 후 날짜 계산
+        String specificPastDate = getSpecificDate(3);
+
+        String futureDateXpath = "//XCUIElementTypeButton[contains(@name, '" + specificPastDate + "')]";
+        WebElement futureDate = driver.findElement(xpath(futureDateXpath));
+
+        futureDate.click();
+
+        touchEventBlankSpace();
+
+        newEvent = driver.findElement(accessibilityId("새로운 이벤트"));
+        newEvent.sendKeys("여러 날짜에 걸친 올데이 이벤트 생성");
+
+        touchEventBlankSpace();
+
+        comment = driver.findElement(xpath("//XCUIElementTypeTextView"));
+        comment.sendKeys("여러 날짜 올데이 이벤트 생성 테스트");
+
+        check = driver.findElement(accessibilityId("checkmark"));
+        check.click();
+
+        for (int i = 0; i < 3; i++) {
+            WebElement allDayEventStorage = driver.findElement(xpath("(//XCUIElementTypeImage[@name=\"calendar\"])[1]"));
+            allDayEventStorage.click();
+
+            WebElement curAllDayEvent = driver.findElement(accessibilityId("여러 날짜에 걸친 올데이 이벤트 생성"));
+            curAllDayEvent.click();
+
+            driver.findElement(iOSNsPredicateString("value == \"여러 날짜 올데이 이벤트 생성 테스트\" AND type == \"XCUIElementTypeTextView\""));
+
+            allDayCountAfter = getCurAllDayCount();
+
+            assertEquals(Integer.parseInt(allDayCountAfter), Integer.parseInt(allDayCountBefore) + 1);
+        }
     }
 
     private String getCurAllDayCount() {
