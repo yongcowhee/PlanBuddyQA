@@ -83,6 +83,29 @@ public class RoutineTest extends TestBase {
         assertTrue(notEnterRoutineTitleErrorMessage.isDisplayed());
     }
 
+    @Test
+    public void 루틴_이름_액션_이름_모두_입력X() {
+        enterBasicInformationRoutineAndToDo("", "");
+
+        checkmark = driver.findElement(accessibilityId("checkmark"));
+        checkmark.click();
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement notEnterToDoTitleErrorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("새로운 할 일의 이름을 입력해주세요")));
+
+        assertTrue(notEnterToDoTitleErrorMessage.isDisplayed());
+        newToDo.sendKeys("루틴 에러 메시지 확인을 위한 할 일 이름 입력");
+
+        checkmark.click();
+
+        checkmark = driver.findElement(accessibilityId("checkmark"));
+        checkmark.click();
+
+        WebElement notEnterRoutineTitleErrorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("루틴 이름을 입력해주세요.")));
+
+        assertTrue(notEnterRoutineTitleErrorMessage.isDisplayed());
+    }
+
     private void enterBasicInformationRoutineAndToDo(String routineTitle, String toDoTitle) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         routineTab = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("clock.arrow.circlepath")));
