@@ -12,6 +12,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.openqa.selenium.By.xpath;
 
@@ -20,7 +21,9 @@ public class TestBase {
     static IOSDriver driver;
 
     static int timeLineLeftX = 96;
-    static int timeLineLeftY = 756;
+    static int timeLineLeftY = 352;
+    static int timeLineRightX = 320;
+    static int timeLineRightY = 320;
     static int eventBlankX = 376;
     static int eventBlankY = 598;
 
@@ -28,9 +31,9 @@ public class TestBase {
     public void setup() throws MalformedURLException {
         options.setPlatformName("iOS");
         options.setDeviceName("TestiPhone");
-        options.setPlatformVersion("18.5");
+        options.setPlatformVersion("18.6.1");
         options.setAutomationName("XCUITest");
-        options.setBundleId("nadoc.planBuddy");
+        options.setBundleId("nadoc.planBuddy.dev");
         options.setUdid("00008101-001258A12298001E");
         options.setNewCommandTimeout(Duration.ofMinutes(60));
 //        options.setCapability("updatedWDABundleId", "com.heedong.WebDriverAgentRunner");
@@ -43,6 +46,7 @@ public class TestBase {
     public void clear() {
         if (driver != null) {
             driver.quit();
+            System.out.print("드라이버가 성공적으로 종료되었습니다.");
         }
     }
 
@@ -54,7 +58,18 @@ public class TestBase {
         tap.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
         tap.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
 
-        driver.perform(Arrays.asList(tap));
+        driver.perform(List.of(tap));
+    }
+
+    public static void touchTimeLineRightSpace() {
+        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+        Sequence tap = new Sequence(finger, 1);
+
+        tap.addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), timeLineRightX, timeLineRightY));
+        tap.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+        tap.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+        driver.perform(List.of(tap));
     }
 
     public static void touchEventBlankSpace() {
