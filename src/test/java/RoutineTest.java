@@ -9,6 +9,7 @@ import java.time.Duration;
 
 import static io.appium.java_client.AppiumBy.*;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class RoutineTest extends TestBase {
     WebElement routineTab;
@@ -47,6 +48,21 @@ public class RoutineTest extends TestBase {
             WebElement createdTodo = driver.findElement(accessibilityId(toDoTitle));
             assertEquals(createdTodo.getAttribute("name"), toDoTitle);
         }
+    }
+
+    @Test
+    public void 루틴_이름만_입력() {
+        String routineTitle = "루틴 생성 테스트 - 루틴 이름만 입력";
+
+        enterBasicInformationRoutineAndToDo(routineTitle, "");
+
+        checkmark = driver.findElement(accessibilityId("checkmark"));
+        checkmark.click();
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement notEnterToDoTitleErrorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("새로운 할 일의 이름을 입력해주세요")));
+
+        assertTrue(notEnterToDoTitleErrorMessage.isDisplayed());
     }
 
     private void enterBasicInformationRoutineAndToDo(String routineTitle, String toDoTitle) {
