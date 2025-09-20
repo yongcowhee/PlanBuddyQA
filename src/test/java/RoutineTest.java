@@ -1,6 +1,7 @@
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -104,6 +105,35 @@ public class RoutineTest extends TestBase {
 
             assertTrue(notEnterRoutineTitleErrorMessage.isDisplayed());
         }
+    }
+
+    @Test
+    public void 루틴_삭제() {
+        // 기등록된 루틴이 있는 경우에만 삭제 가능
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        routineTab = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("clock.arrow.circlepath")));
+        routineTab.click();
+
+        WebElement routine = driver.findElement(accessibilityId("루틴"));
+        routine.click();
+
+        WebElement removeButton = driver.findElement(accessibilityId("trash"));
+        removeButton.click();
+
+        WebElement removeConfirmButton = driver.findElement(accessibilityId("삭제"));
+        removeConfirmButton.click();
+
+        boolean isElementDisappeared;
+
+        try {
+            isElementDisappeared = wait.until(ExpectedConditions.invisibilityOfElementLocated(accessibilityId("루틴")));
+            System.out.println("요소가 성공적으로 삭제되었습니다.");
+        } catch (TimeoutException e) {
+            System.out.println("요소가 지정된 시간 내에 사라지지 않았습니다. 삭제 실패.");
+            isElementDisappeared = false;
+        }
+
+        assertTrue(isElementDisappeared, "삭제하려는 요소가 화면에 여전히 존재합니다.");
     }
 
     private void enterBasicInformationRoutineAndToDo(String routineTitle, String toDoTitle) {
