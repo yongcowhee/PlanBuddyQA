@@ -48,62 +48,62 @@ public class RoutineTest extends TestBase {
             WebElement createdTodo = driver.findElement(accessibilityId(toDoTitle));
             assertEquals(createdTodo.getAttribute("name"), toDoTitle);
         }
-    }
 
-    @Test
-    public void 루틴_이름만_입력() {
-        String routineTitle = "루틴 생성 테스트 - 루틴 이름만 입력";
+        @Test
+        public void 루틴_이름만_입력() {
+            String routineTitle = "루틴 생성 테스트 - 루틴 이름만 입력";
 
-        enterBasicInformationRoutineAndToDo(routineTitle, "");
+            enterBasicInformationRoutineAndToDo(routineTitle, "");
 
-        checkmark = driver.findElement(accessibilityId("checkmark"));
-        checkmark.click();
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        WebElement notEnterToDoTitleErrorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("새로운 할 일의 이름을 입력해주세요")));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement notEnterToDoTitleErrorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("새로운 할 일의 이름을 입력해주세요")));
 
-        assertTrue(notEnterToDoTitleErrorMessage.isDisplayed());
-    }
+            assertTrue(notEnterToDoTitleErrorMessage.isDisplayed());
+        }
 
-    @Test
-    public void 할일_이름만_입력() {
-        String toDoTitle = "루틴 생성 테스트 - 할일 이름만 입력";
+        @Test
+        public void 할일_이름만_입력() {
+            String toDoTitle = "루틴 생성 테스트 - 할일 이름만 입력";
 
-        enterBasicInformationRoutineAndToDo("", toDoTitle);
+            enterBasicInformationRoutineAndToDo("", toDoTitle);
 
-        checkmark = driver.findElement(accessibilityId("checkmark"));
-        checkmark.click();
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
 
-        checkmark = driver.findElement(accessibilityId("checkmark"));
-        checkmark.click();
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        WebElement notEnterRoutineTitleErrorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("루틴 이름을 입력해주세요.")));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement notEnterRoutineTitleErrorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("루틴 이름을 입력해주세요.")));
 
-        assertTrue(notEnterRoutineTitleErrorMessage.isDisplayed());
-    }
+            assertTrue(notEnterRoutineTitleErrorMessage.isDisplayed());
+        }
 
-    @Test
-    public void 루틴_이름_액션_이름_모두_입력X() {
-        enterBasicInformationRoutineAndToDo("", "");
+        @Test
+        public void 루틴_이름_액션_이름_모두_입력X() {
+            enterBasicInformationRoutineAndToDo("", "");
 
-        checkmark = driver.findElement(accessibilityId("checkmark"));
-        checkmark.click();
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        WebElement notEnterToDoTitleErrorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("새로운 할 일의 이름을 입력해주세요")));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement notEnterToDoTitleErrorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("새로운 할 일의 이름을 입력해주세요")));
 
-        assertTrue(notEnterToDoTitleErrorMessage.isDisplayed());
-        newToDo.sendKeys("루틴 에러 메시지 확인을 위한 할 일 이름 입력");
+            assertTrue(notEnterToDoTitleErrorMessage.isDisplayed());
+            newToDo.sendKeys("루틴 에러 메시지 확인을 위한 할 일 이름 입력");
 
-        checkmark.click();
+            checkmark.click();
 
-        checkmark = driver.findElement(accessibilityId("checkmark"));
-        checkmark.click();
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
 
-        WebElement notEnterRoutineTitleErrorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("루틴 이름을 입력해주세요.")));
+            WebElement notEnterRoutineTitleErrorMessage = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("루틴 이름을 입력해주세요.")));
 
-        assertTrue(notEnterRoutineTitleErrorMessage.isDisplayed());
+            assertTrue(notEnterRoutineTitleErrorMessage.isDisplayed());
+        }
     }
 
     private void enterBasicInformationRoutineAndToDo(String routineTitle, String toDoTitle) {
