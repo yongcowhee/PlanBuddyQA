@@ -1,0 +1,71 @@
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+
+import static io.appium.java_client.AppiumBy.*;
+import static org.testng.Assert.assertEquals;
+
+public class RoutineTest extends TestBase {
+    WebElement routineTab;
+    WebElement createRoutineButton;
+    WebElement newRoutine;
+    WebElement addRoutineButton;
+    WebElement newToDo;
+    WebElement routineHourPickerWheel;
+    WebElement routineMinutePickerWheel;
+    WebElement checkmark;
+    int findRoutineTotalHour;
+    int findRoutineTotalMinute;
+    String expectedRoutineTotalTime;
+
+    @Nested
+    @DisplayName("시간 조절 없이 루틴 등록 테스트")
+    class CreateRoutineTest {
+        @Test
+        public void 루틴_액션_할일_모두_입력() {
+            String routineTitle = "루틴 생성 테스트 - 루틴 이름과 할일 이름 모두 등록";
+            String toDoTitle = "루틴 생성 시 할일 이름이 있을 경우";
+
+            enterBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
+
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            // 할 일 생성
+            checkmark.click();
+            // 루틴 생성
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
+
+            WebElement createdRoutine = driver.findElement(accessibilityId(routineTitle));
+            assertEquals(createdRoutine.getAttribute("name"), routineTitle);
+
+            createdRoutine.click();
+            WebElement createdTodo = driver.findElement(accessibilityId(toDoTitle));
+            assertEquals(createdTodo.getAttribute("name"), toDoTitle);
+        }
+    }
+
+    private void enterBasicInformationRoutineAndToDo(String routineTitle, String toDoTitle) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        routineTab = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("clock.arrow.circlepath")));
+        routineTab.click();
+
+        createRoutineButton = driver.findElement(accessibilityId("시작하기"));
+        createRoutineButton.click();
+
+        newRoutine = driver.findElement(iOSClassChain("**/XCUIElementTypeScrollView/**/XCUIElementTypeTextField"));
+        newRoutine.click();
+        newRoutine.sendKeys(routineTitle);
+
+        addRoutineButton = driver.findElement(iOSNsPredicateString("name == \"plus\" AND label == \"추가\" AND type == \"XCUIElementTypeButton\""));
+        addRoutineButton.click();
+
+        newToDo = wait.until(ExpectedConditions.presenceOfElementLocated(iOSClassChain("**/XCUIElementTypeWindow/**/XCUIElementTypeTextField")));
+        newToDo.click();
+        newToDo.sendKeys(toDoTitle);
+    }
+}
