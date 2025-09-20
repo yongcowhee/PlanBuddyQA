@@ -108,11 +108,39 @@ public class RoutineTest extends TestBase {
     }
 
     @Test
+    public void 루틴_이름_수정() {
+        String expectTitle = "루틴 이름 수정";
+
+        createRoutineForModifyAndRemoveRoutine();
+
+        WebElement routine = driver.findElement(accessibilityId("루틴"));
+        routine.click();
+
+        WebElement routineTitle = driver.findElement(accessibilityId("루틴"));
+        routineTitle.click();
+
+        WebElement routineTitleField = driver.findElement(iOSClassChain("**/XCUIElementTypeTextField"));
+        routineTitleField.click();
+        routineTitleField.clear();
+        routineTitleField.sendKeys(expectTitle);
+
+        checkmark = driver.findElement(accessibilityId("checkmark"));
+        checkmark.click();
+
+        WebElement modifiedRoutineTitle = driver.findElement(accessibilityId(expectTitle));
+        assertEquals(modifiedRoutineTitle.getAttribute("name"), expectTitle);
+
+        WebElement backButton = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name == \"chevron.left\"`]"));
+        backButton.click();
+
+        modifiedRoutineTitle = driver.findElement(accessibilityId(expectTitle));
+        assertEquals(modifiedRoutineTitle.getAttribute("name"), expectTitle);
+    }
+
+    @Test
     public void 루틴_삭제() {
-        // 기등록된 루틴이 있는 경우에만 삭제 가능
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        routineTab = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("clock.arrow.circlepath")));
-        routineTab.click();
+        // 기등록된 루틴이 있는 경우에만 삭제 가능하므로 루틴 등록 동작 실행
+        createRoutineForModifyAndRemoveRoutine();
 
         WebElement routine = driver.findElement(accessibilityId("루틴"));
         routine.click();
@@ -123,8 +151,8 @@ public class RoutineTest extends TestBase {
         WebElement removeConfirmButton = driver.findElement(accessibilityId("삭제"));
         removeConfirmButton.click();
 
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         boolean isElementDisappeared;
-
         try {
             isElementDisappeared = wait.until(ExpectedConditions.invisibilityOfElementLocated(accessibilityId("루틴")));
             System.out.println("요소가 성공적으로 삭제되었습니다.");
@@ -154,5 +182,22 @@ public class RoutineTest extends TestBase {
         newToDo = wait.until(ExpectedConditions.presenceOfElementLocated(iOSClassChain("**/XCUIElementTypeWindow/**/XCUIElementTypeTextField")));
         newToDo.click();
         newToDo.sendKeys(toDoTitle);
+    }
+
+    private void createRoutineForModifyAndRemoveRoutine() {
+        String routineTitle = "루틴";
+        String toDoTitle = "할 일";
+
+        enterBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
+
+        checkmark = driver.findElement(accessibilityId("checkmark"));
+        // 할 일 생성
+        checkmark.click();
+        // 루틴 생성
+        checkmark = driver.findElement(accessibilityId("checkmark"));
+        checkmark.click();
+
+        WebElement createdRoutine = driver.findElement(accessibilityId(routineTitle));
+        assertEquals(createdRoutine.getAttribute("name"), routineTitle);
     }
 }
