@@ -188,6 +188,43 @@ public class RoutineTest extends TestBase {
             WebElement toDoSettingZeroMinuteError = driver.findElement(accessibilityId("최소 실행 시간은 1분입니다"));
             Assert.assertTrue(toDoSettingZeroMinuteError.isDisplayed());
         }
+
+        @Test
+        public void 액션_타이머_시간을_23시_59분으로_설정() {
+            String routineTitle = "루틴 생성과 동시에 할일 생성";
+            String toDoTitle = "액션(할일) 둥록 테스트";
+
+            enterBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
+
+            // 23시간 59분 액션 생성
+            regulateToDoHourPickerWheel(23);
+            regulateToDoMinutePickerWheel(59);
+
+            // 액션 등록
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
+
+            // 루틴 등록
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
+
+            WebElement createdRoutine = driver.findElement(accessibilityId(routineTitle));
+            assertEquals(createdRoutine.getAttribute("name"), routineTitle);
+
+            createdRoutine.click();
+
+            // 루틴 내 등록된 액션의 전체 시간 합 계산
+            findAllToDoInRoutineAndCalculateTotalTime();
+
+            if (findRoutineTotalMinute != 0) {
+                expectedRoutineTotalTime = findRoutineTotalHour + "시간 " + findRoutineTotalMinute + "분";
+            } else {
+                expectedRoutineTotalTime = findRoutineTotalHour + "시간";
+            }
+
+            WebElement realRoutineTotalTime = driver.findElement(iOSClassChain("**/XCUIElementTypeScrollView/**/XCUIElementTypeStaticText[`name CONTAINS '시간' OR name CONTAINS '분'`]"));
+            assertEquals(realRoutineTotalTime.getAttribute("name"), expectedRoutineTotalTime);
+        }
     }
 
     private void findAllToDoInRoutineAndCalculateTotalTime() {
