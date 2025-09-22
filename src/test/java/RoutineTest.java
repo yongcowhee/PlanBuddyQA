@@ -3,10 +3,15 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static io.appium.java_client.AppiumBy.*;
 import static org.testng.Assert.assertEquals;
@@ -18,8 +23,6 @@ public class RoutineTest extends TestBase {
     WebElement newRoutine;
     WebElement addRoutineButton;
     WebElement newToDo;
-    WebElement routineHourPickerWheel;
-    WebElement routineMinutePickerWheel;
     WebElement checkmark;
     int findRoutineTotalHour;
     int findRoutineTotalMinute;
@@ -162,6 +165,119 @@ public class RoutineTest extends TestBase {
         }
 
         assertTrue(isElementDisappeared, "삭제하려는 요소가 화면에 여전히 존재합니다.");
+    }
+
+    @Nested
+    @DisplayName("할 일 생성 테스트 - 루틴 생성과 동시에 이뤄지는 경우")
+    class CreateToDoTest {
+        @Test
+        public void 액션_타이머_시간을_0시간_0분으로_설정() {
+            String routineTitle = "루틴 생성과 동시에 할일 생성";
+            String toDoTitle = "액션(할일) 둥록 테스트";
+
+            enterBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
+
+            // 0시간 0분 액션 생성
+            regulateToDoHourPickerWheel(0);
+            regulateToDoMinutePickerWheel(0);
+
+            // 액션 등록
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
+
+            WebElement toDoSettingZeroMinuteError = driver.findElement(accessibilityId("최소 실행 시간은 1분입니다"));
+            Assert.assertTrue(toDoSettingZeroMinuteError.isDisplayed());
+        }
+    }
+
+    private void findAllToDoInRoutineAndCalculateTotalTime() {
+        List<WebElement> toDoList = driver.findElements(iOSClassChain("**/XCUIElementTypeCollectionView/**/XCUIElementTypeStaticText[`name CONTAINS '시간' OR name CONTAINS '분'`]"));
+        for (WebElement el : toDoList) {
+            String totalTime = el.getAttribute("name");
+            if (totalTime.contains("시간")) {
+                String[] splitTotalTime = totalTime.split(" ");
+                // 1시간, 3시간 처럼 시간으로만 이뤄진 경우
+                if (splitTotalTime.length == 1) {
+                    int splitHour = Integer.parseInt(splitTotalTime[0].substring(0, splitTotalTime[0].length() - 2));
+                    findRoutineTotalHour += splitHour;
+                }
+                // 1시간 10분 처럼 시간과 분으로 이뤄진 경우
+                else {
+                    // 시간이라는 글자를 제외한 앞의 숫자를 int로 변환
+                    int splitHour = Integer.parseInt(splitTotalTime[0].substring(0, splitTotalTime[0].length() - 2));
+                    findRoutineTotalHour += splitHour;
+                    // 분이라는 글자를 제외한 앞의 숫자를 int로 변환
+                    int splitMinute = Integer.parseInt(splitTotalTime[1].substring(0, splitTotalTime[1].length() - 1));
+                    findRoutineTotalMinute += splitMinute;
+                }
+            }
+            // 시간을 포함하지 않고, "분"만 포함해 분으로만 이뤄진 액션인 경우
+            else {
+                findRoutineTotalMinute += Integer.parseInt(totalTime.substring(0, totalTime.length() - 1));
+            }
+        }
+
+        if (findRoutineTotalMinute > 59) {
+            int quotient = findRoutineTotalMinute / 60;
+            findRoutineTotalHour += quotient;
+            findRoutineTotalMinute = findRoutineTotalMinute % 60;
+        }
+    }
+
+    private void regulateToDoHourPickerWheel(int targetHour) {
+        if (targetHour < 0 || targetHour > 23) {
+            System.out.println("시간은 음수 혹은 23시 초과로 설정할 수 없습니다.");
+        } else {
+            while (true) {
+                WebElement routineHourPickerWheel = driver.findElement(iOSClassChain(
+                        "**/XCUIElementTypePicker[`name == \"시간\"`]/XCUIElementTypePickerWheel"));
+
+                int currentHour = Integer.parseInt(routineHourPickerWheel.getAttribute("value"));
+
+                // 목표 값에 도달했는지 확인
+                if (currentHour == targetHour) {
+                    System.out.println("시간 설정 완료: " + currentHour);
+                    break;
+                }
+
+                String direction = (currentHour > targetHour) ? "previous" : "next";
+
+                Map<String, Object> params = new HashMap<>();
+                params.put("element", ((RemoteWebElement) routineHourPickerWheel).getId());
+                params.put("order", direction);
+                params.put("offset", 0.15);
+
+                driver.executeScript("mobile: selectPickerWheelValue", params);
+            }
+        }
+    }
+
+    private void regulateToDoMinutePickerWheel(int targetMinute) {
+        if (targetMinute < 0 || targetMinute > 59) {
+            System.out.println("분은 음수 혹은 59분 초과로 설정할 수 없습니다.");
+        } else {
+            while (true) {
+                WebElement routineHourPickerWheel = driver.findElement(iOSClassChain(
+                        "**/XCUIElementTypePicker[`name == \"분\"`]/XCUIElementTypePickerWheel"));
+
+                int currentHour = Integer.parseInt(routineHourPickerWheel.getAttribute("value"));
+
+                // 목표 값에 도달했는지 확인
+                if (currentHour == targetMinute) {
+                    System.out.println("분 설정 완료: " + currentHour);
+                    break;
+                }
+
+                String direction = (currentHour > targetMinute) ? "previous" : "next";
+
+                Map<String, Object> params = new HashMap<>();
+                params.put("element", ((RemoteWebElement) routineHourPickerWheel).getId());
+                params.put("order", direction);
+                params.put("offset", 0.15);
+
+                driver.executeScript("mobile: selectPickerWheelValue", params);
+            }
+        }
     }
 
     private void enterBasicInformationRoutineAndToDo(String routineTitle, String toDoTitle) {
