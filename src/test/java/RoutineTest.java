@@ -311,6 +311,18 @@ public class RoutineTest extends TestBase {
             assertEquals(realRoutineTotalTime.getAttribute("name"), expectedRoutineTotalTime);
         }
 
+        @Test
+        public void 이미_등록된_루틴에서_액션_추가_등록_액션_이름X() {
+            String routineTitle = "미리 등록된 루틴";
+
+            addToDoInRoutine(routineTitle, "");
+
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
+
+            WebElement createToDoErrorMessage = driver.findElement(accessibilityId("새로운 할 일의 이름을 입력해주세요"));
+            assertTrue(createToDoErrorMessage.isDisplayed());
+        }
     }
 
     private void findAllToDoInRoutineAndCalculateTotalTime() {
