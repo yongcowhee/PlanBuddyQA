@@ -273,6 +273,44 @@ public class RoutineTest extends TestBase {
             WebElement createToDoErrorMessage = driver.findElement(accessibilityId("최소 실행 시간은 1분입니다"));
             assertTrue(createToDoErrorMessage.isDisplayed());
         }
+
+        @Test
+        public void 이미_등록된_루틴에서_액션_추가_등록_무작위_시간() {
+            String routineTitle = "미리 등록된 루틴";
+            String toDoTitle = "이미 등록된 루틴 내 액션 추가 등록 - 무작위 시간";
+            int expectedHour = 1;
+            int expectedMinute = 18;
+
+            addToDoInRoutine(routineTitle, toDoTitle);
+
+            regulateToDoHourPickerWheel(expectedHour);
+            regulateToDoMinutePickerWheel(expectedMinute);
+
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
+
+            WebElement createdToDo = driver.findElement(accessibilityId(toDoTitle));
+            assertTrue(createdToDo.isDisplayed());
+
+            WebElement createdToDoTime = driver.findElement(
+                    xpath("//XCUIElementTypeStaticText[@name='" + toDoTitle + "']/following-sibling::XCUIElementTypeStaticText"));
+
+            if (expectedHour != 0 && expectedMinute != 0) {
+                assertEquals(createdToDoTime.getAttribute("name"), expectedHour + "시간 " + expectedMinute + "분");
+            } else if (expectedHour != 0 && expectedMinute == 0) {
+                assertEquals(createdToDoTime.getAttribute("name"), expectedHour + "시간");
+            } else {
+                assertEquals(createdToDoTime.getAttribute("name"), expectedMinute + "분");
+            }
+
+            findAllToDoInRoutineAndCalculateTotalTime();
+
+            convertExpectedRoutineTotalTimeToString();
+
+            WebElement realRoutineTotalTime = driver.findElement(iOSClassChain("**/XCUIElementTypeScrollView/**/XCUIElementTypeStaticText[`name CONTAINS '시간' OR name CONTAINS '분'`]"));
+            assertEquals(realRoutineTotalTime.getAttribute("name"), expectedRoutineTotalTime);
+        }
+
     }
 
     private void findAllToDoInRoutineAndCalculateTotalTime() {
