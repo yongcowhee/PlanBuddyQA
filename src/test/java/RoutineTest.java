@@ -256,6 +256,23 @@ public class RoutineTest extends TestBase {
             // 실제 합산 값과 비교
             assertEquals(realRoutineTotalTime.getAttribute("name"), expectedRoutineTotalTime);
         }
+
+        @Test
+        public void 이미_등록된_루틴에서_액션_추가_등록_0시간_0분() {
+            String routineTitle = "미리 등록된 루틴";
+            String toDoTitle = "이미 등록된 루틴에서 액션 추가 등록 - 0시간 0분";
+
+            addToDoInRoutine(routineTitle, toDoTitle);
+
+            regulateToDoHourPickerWheel(0);
+            regulateToDoMinutePickerWheel(0);
+
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
+
+            WebElement createToDoErrorMessage = driver.findElement(accessibilityId("최소 실행 시간은 1분입니다"));
+            assertTrue(createToDoErrorMessage.isDisplayed());
+        }
     }
 
     private void findAllToDoInRoutineAndCalculateTotalTime() {
@@ -393,5 +410,21 @@ public class RoutineTest extends TestBase {
         } else {
             expectedRoutineTotalTime = findRoutineTotalMinute + "분";
         }
+    }
+
+    private void addToDoInRoutine(String routineTitle, String toDoTitle) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        routineTab = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("clock.arrow.circlepath")));
+        routineTab.click();
+
+        WebElement createdRoutine = driver.findElement(accessibilityId(routineTitle));
+        createdRoutine.click();
+
+        addToDoButtonInRoutine = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name == \"plus\"`]"));
+        addToDoButtonInRoutine.click();
+
+        newToDo = wait.until(ExpectedConditions.presenceOfElementLocated(iOSClassChain("**/XCUIElementTypeWindow/**/XCUIElementTypeTextField")));
+        newToDo.click();
+        newToDo.sendKeys(toDoTitle);
     }
 }
