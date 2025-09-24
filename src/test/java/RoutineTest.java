@@ -222,6 +222,40 @@ public class RoutineTest extends TestBase {
             WebElement realRoutineTotalTime = driver.findElement(iOSClassChain("**/XCUIElementTypeScrollView/**/XCUIElementTypeStaticText[`name CONTAINS '시간' OR name CONTAINS '분'`]"));
             assertEquals(realRoutineTotalTime.getAttribute("name"), expectedRoutineTotalTime);
         }
+
+        @Test
+        public void 액션_타이머_시간을_임의로_설정() {
+            String routineTitle = "루틴 생성과 동시에 할 일 생성";
+            String toDoTitle = "할 일 타이머 시간 임의로 설정";
+
+            enterBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
+
+            regulateToDoHourPickerWheel(3);
+            regulateToDoMinutePickerWheel(15);
+
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
+
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
+
+            WebElement createdRoutine = driver.findElement(accessibilityId(routineTitle));
+            assertEquals(createdRoutine.getAttribute("name"), routineTitle);
+
+            createdRoutine.click();
+
+            WebElement createdToDo = driver.findElement(accessibilityId(toDoTitle));
+            assertEquals(createdToDo.getAttribute("name"), toDoTitle);
+
+            findAllToDoInRoutineAndCalculateTotalTime();
+
+            convertExpectedRoutineTotalTimeToString();
+
+            // 전체 할 일 합산 시간 요소
+            WebElement realRoutineTotalTime = driver.findElement(iOSClassChain("**/XCUIElementTypeScrollView/**/XCUIElementTypeStaticText[`name CONTAINS '시간' OR name CONTAINS '분'`]"));
+            // 실제 합산 값과 비교
+            assertEquals(realRoutineTotalTime.getAttribute("name"), expectedRoutineTotalTime);
+        }
     }
 
     private void findAllToDoInRoutineAndCalculateTotalTime() {
