@@ -27,6 +27,7 @@ public class RoutineTest extends TestBase {
     int findRoutineTotalHour;
     int findRoutineTotalMinute;
     String expectedRoutineTotalTime;
+    WebElement addToDoButtonInRoutine;
 
     @Nested
     @DisplayName("시간 조절 없이 루틴 등록 테스트")
@@ -216,11 +217,7 @@ public class RoutineTest extends TestBase {
             // 루틴 내 등록된 액션의 전체 시간 합 계산
             findAllToDoInRoutineAndCalculateTotalTime();
 
-            if (findRoutineTotalMinute != 0) {
-                expectedRoutineTotalTime = findRoutineTotalHour + "시간 " + findRoutineTotalMinute + "분";
-            } else {
-                expectedRoutineTotalTime = findRoutineTotalHour + "시간";
-            }
+            convertExpectedRoutineTotalTimeToString();
 
             WebElement realRoutineTotalTime = driver.findElement(iOSClassChain("**/XCUIElementTypeScrollView/**/XCUIElementTypeStaticText[`name CONTAINS '시간' OR name CONTAINS '분'`]"));
             assertEquals(realRoutineTotalTime.getAttribute("name"), expectedRoutineTotalTime);
@@ -228,30 +225,30 @@ public class RoutineTest extends TestBase {
     }
 
     private void findAllToDoInRoutineAndCalculateTotalTime() {
-        List<WebElement> toDoList = driver.findElements(iOSClassChain("**/XCUIElementTypeCollectionView/**/XCUIElementTypeStaticText[`name CONTAINS '시간' OR name CONTAINS '분'`]"));
+        List<WebElement> toDoList = driver.findElements(iOSClassChain("**/XCUIElementTypeCollectionView/**/XCUIElementTypeCell/**/XCUIElementTypeStaticText"));
+        int index = 0;
         for (WebElement el : toDoList) {
-            String totalTime = el.getAttribute("name");
-            if (totalTime.contains("시간")) {
+            // 인덱스는 0부터 시작하고 모든 시간 값은 홀수번째에 위치
+            if (index % 2 == 1) {
+                String totalTime = el.getAttribute("name");
                 String[] splitTotalTime = totalTime.split(" ");
-                // 1시간, 3시간 처럼 시간으로만 이뤄진 경우
+
+                // 시간 혹은 분 만으로 이뤄진 경우 (ex. 1시간 or 30분)
                 if (splitTotalTime.length == 1) {
-                    int splitHour = Integer.parseInt(splitTotalTime[0].substring(0, splitTotalTime[0].length() - 2));
-                    findRoutineTotalHour += splitHour;
-                }
-                // 1시간 10분 처럼 시간과 분으로 이뤄진 경우
-                else {
-                    // 시간이라는 글자를 제외한 앞의 숫자를 int로 변환
-                    int splitHour = Integer.parseInt(splitTotalTime[0].substring(0, splitTotalTime[0].length() - 2));
-                    findRoutineTotalHour += splitHour;
-                    // 분이라는 글자를 제외한 앞의 숫자를 int로 변환
-                    int splitMinute = Integer.parseInt(splitTotalTime[1].substring(0, splitTotalTime[1].length() - 1));
-                    findRoutineTotalMinute += splitMinute;
+                    if (splitTotalTime[0].contains("시간")) {
+                        // 시간 String 제외 후 합산
+                        findRoutineTotalHour += Integer.parseInt(splitTotalTime[0].substring(0, splitTotalTime[0].length() - 2));
+                    } else {
+                        // 분 String 제외 후 합산
+                        findRoutineTotalMinute += Integer.parseInt(splitTotalTime[0].substring(0, splitTotalTime[0].length() - 1));
+                    }
+                } else { // 2시간 30분 처럼 시간과 분으로 이뤄진 경우 (length == 2)
+                    findRoutineTotalHour += Integer.parseInt(splitTotalTime[0].substring(0, splitTotalTime[0].length() - 2));
+                    findRoutineTotalMinute += Integer.parseInt(splitTotalTime[1].substring(0, splitTotalTime[1].length() - 1));
                 }
             }
-            // 시간을 포함하지 않고, "분"만 포함해 분으로만 이뤄진 액션인 경우
-            else {
-                findRoutineTotalMinute += Integer.parseInt(totalTime.substring(0, totalTime.length() - 1));
-            }
+
+            index++;
         }
 
         if (findRoutineTotalMinute > 59) {
@@ -352,5 +349,15 @@ public class RoutineTest extends TestBase {
 
         WebElement createdRoutine = driver.findElement(accessibilityId(routineTitle));
         assertEquals(createdRoutine.getAttribute("name"), routineTitle);
+    }
+
+    public void convertExpectedRoutineTotalTimeToString() {
+        if (findRoutineTotalMinute != 0 && findRoutineTotalMinute != 0) {
+            expectedRoutineTotalTime = findRoutineTotalHour + "시간 " + findRoutineTotalMinute + "분";
+        } else if (findRoutineTotalHour != 0 && findRoutineTotalMinute == 0) {
+            expectedRoutineTotalTime = findRoutineTotalHour + "시간";
+        } else {
+            expectedRoutineTotalTime = findRoutineTotalMinute + "분";
+        }
     }
 }
