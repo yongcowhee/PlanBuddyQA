@@ -323,6 +323,50 @@ public class RoutineTest extends TestBase {
             WebElement createToDoErrorMessage = driver.findElement(accessibilityId("새로운 할 일의 이름을 입력해주세요"));
             assertTrue(createToDoErrorMessage.isDisplayed());
         }
+
+        @Test
+        public void 액션_수정() {
+            String routineTitle = "미리 등록된 루틴";
+            String toDoTitle = "액션 수정 테스트 할 일";
+            String modifyToDoTitle = "액션 이름 수정";
+            int modifyHour = 3;
+            int modifyMinute = 0;
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            routineTab = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("clock.arrow.circlepath")));
+            routineTab.click();
+
+            WebElement createdRoutine = driver.findElement(accessibilityId(routineTitle));
+            createdRoutine.click();
+
+            WebElement createdToDo = driver.findElement(accessibilityId(toDoTitle));
+            createdToDo.click();
+
+            WebElement toDoTextField = driver.findElement(iOSClassChain("**/XCUIElementTypeTextField"));
+            toDoTextField.clear();
+            toDoTextField.sendKeys(modifyToDoTitle);
+
+            regulateToDoHourPickerWheel(modifyHour);
+            regulateToDoMinutePickerWheel(modifyMinute);
+
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
+
+            WebElement modifiedToDo = driver.findElement(accessibilityId(modifyToDoTitle));
+            assertTrue(modifiedToDo.isDisplayed());
+
+            WebElement modifiedToDoTime = driver.findElement(
+                    xpath("//XCUIElementTypeStaticText[@name='" + modifyToDoTitle + "']/following-sibling::XCUIElementTypeStaticText"));
+
+            verifyToDoTime(modifyHour, modifyMinute, modifiedToDoTime);
+
+            findAllToDoInRoutineAndCalculateTotalTime();
+
+            convertExpectedRoutineTotalTimeToString();
+            WebElement realRoutineTotalTime = driver.findElement(iOSClassChain("**/XCUIElementTypeScrollView/**/XCUIElementTypeStaticText[`name CONTAINS '시간' OR name CONTAINS '분'`]"));
+
+            assertEquals(realRoutineTotalTime.getAttribute("name"), expectedRoutineTotalTime);
+        }
     }
 
     private void findAllToDoInRoutineAndCalculateTotalTime() {
@@ -452,7 +496,7 @@ public class RoutineTest extends TestBase {
         assertEquals(createdRoutine.getAttribute("name"), routineTitle);
     }
 
-    public void convertExpectedRoutineTotalTimeToString() {
+    private void convertExpectedRoutineTotalTimeToString() {
         if (findRoutineTotalMinute != 0 && findRoutineTotalMinute != 0) {
             expectedRoutineTotalTime = findRoutineTotalHour + "시간 " + findRoutineTotalMinute + "분";
         } else if (findRoutineTotalHour != 0 && findRoutineTotalMinute == 0) {
@@ -476,5 +520,15 @@ public class RoutineTest extends TestBase {
         newToDo = wait.until(ExpectedConditions.presenceOfElementLocated(iOSClassChain("**/XCUIElementTypeWindow/**/XCUIElementTypeTextField")));
         newToDo.click();
         newToDo.sendKeys(toDoTitle);
+    }
+
+    private void verifyToDoTime(int expectedHour, int expectedMinute, WebElement todoTime) {
+        if (expectedHour != 0 && expectedMinute != 0) {
+            assertEquals(todoTime.getAttribute("name"), expectedHour + "시간 " + expectedMinute + "분");
+        } else if (expectedHour != 0 && expectedMinute == 0) {
+            assertEquals(todoTime.getAttribute("name"), expectedHour + "시간");
+        } else {
+            assertEquals(todoTime.getAttribute("name"), expectedMinute + "분");
+        }
     }
 }
