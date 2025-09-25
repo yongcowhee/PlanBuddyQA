@@ -367,7 +367,11 @@ public class RoutineTest extends TestBase {
 
             assertEquals(realRoutineTotalTime.getAttribute("name"), expectedRoutineTotalTime);
         }
+    }
 
+    @Nested
+    @DisplayName("액션 연속 실행 및 알람 버튼 동작 테스트")
+    class ToDoPlayButtonTest {
         @Test
         public void 액션_수정_탭에서_액션_알람_버튼_ON() {
             String routineTitle = "미리 등록된 루틴";
@@ -406,7 +410,6 @@ public class RoutineTest extends TestBase {
             assertTrue(alarmOffButton.isDisplayed(), "기대 결과와 다릅니다. 알람 초기 설정 상태를 확인해주세요.");
         }
     }
-
 
     private void findAllToDoInRoutineAndCalculateTotalTime() {
         List<WebElement> toDoList = driver.findElements(iOSClassChain("**/XCUIElementTypeCollectionView/**/XCUIElementTypeCell/**/XCUIElementTypeStaticText"));
