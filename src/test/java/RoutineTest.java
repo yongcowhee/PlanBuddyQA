@@ -37,7 +37,7 @@ public class RoutineTest extends TestBase {
             String routineTitle = "루틴 생성 테스트 - 루틴 이름과 할일 이름 모두 등록";
             String toDoTitle = "루틴 생성 시 할일 이름이 있을 경우";
 
-            enterBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
+            writeBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
 
             checkmark = driver.findElement(accessibilityId("checkmark"));
             // 할 일 생성
@@ -58,7 +58,7 @@ public class RoutineTest extends TestBase {
         public void 루틴_이름만_입력() {
             String routineTitle = "루틴 생성 테스트 - 루틴 이름만 입력";
 
-            enterBasicInformationRoutineAndToDo(routineTitle, "");
+            writeBasicInformationRoutineAndToDo(routineTitle, "");
 
             checkmark = driver.findElement(accessibilityId("checkmark"));
             checkmark.click();
@@ -73,7 +73,7 @@ public class RoutineTest extends TestBase {
         public void 할일_이름만_입력() {
             String toDoTitle = "루틴 생성 테스트 - 할일 이름만 입력";
 
-            enterBasicInformationRoutineAndToDo("", toDoTitle);
+            writeBasicInformationRoutineAndToDo("", toDoTitle);
 
             checkmark = driver.findElement(accessibilityId("checkmark"));
             checkmark.click();
@@ -89,7 +89,7 @@ public class RoutineTest extends TestBase {
 
         @Test
         public void 루틴_이름_액션_이름_모두_입력X() {
-            enterBasicInformationRoutineAndToDo("", "");
+            writeBasicInformationRoutineAndToDo("", "");
 
             checkmark = driver.findElement(accessibilityId("checkmark"));
             checkmark.click();
@@ -176,7 +176,7 @@ public class RoutineTest extends TestBase {
             String routineTitle = "루틴 생성과 동시에 할일 생성";
             String toDoTitle = "액션(할일) 둥록 테스트";
 
-            enterBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
+            writeBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
 
             // 0시간 0분 액션 생성
             regulateToDoHourPickerWheel(0);
@@ -195,7 +195,7 @@ public class RoutineTest extends TestBase {
             String routineTitle = "루틴 생성과 동시에 할일 생성";
             String toDoTitle = "액션(할일) 둥록 테스트";
 
-            enterBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
+            writeBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
 
             // 23시간 59분 액션 생성
             regulateToDoHourPickerWheel(23);
@@ -228,7 +228,7 @@ public class RoutineTest extends TestBase {
             String routineTitle = "루틴 생성과 동시에 할 일 생성";
             String toDoTitle = "할 일 타이머 시간 임의로 설정";
 
-            enterBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
+            writeBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
 
             regulateToDoHourPickerWheel(3);
             regulateToDoMinutePickerWheel(15);
@@ -367,7 +367,46 @@ public class RoutineTest extends TestBase {
 
             assertEquals(realRoutineTotalTime.getAttribute("name"), expectedRoutineTotalTime);
         }
+
+        @Test
+        public void 액션_수정_탭에서_액션_알람_버튼_ON() {
+            String routineTitle = "미리 등록된 루틴";
+            String toDoTitle = "미리 등록된 할 일";
+
+            enterRoutineTabAndClickRoutineAndToDo(routineTitle, toDoTitle);
+
+            alarmOnOff();
+
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
+
+            WebElement createdToDo = driver.findElement(accessibilityId(toDoTitle));
+            createdToDo.click();
+
+            WebElement alarmOnButton = driver.findElement(accessibilityId("bell"));
+            assertTrue(alarmOnButton.isDisplayed(), "기대 결과와 다릅니다. 알람 초기 설정 상태를 확인해주세요.");
+        }
+
+        @Test
+        public void 액션_수정_탭에서_액션_알람_버튼_OFF() {
+            String routineTitle = "미리 등록된 루틴";
+            String toDoTitle = "미리 등록된 할 일";
+
+            enterRoutineTabAndClickRoutineAndToDo(routineTitle, toDoTitle);
+
+            alarmOnOff();
+
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
+
+            WebElement createdToDo = driver.findElement(accessibilityId(toDoTitle));
+            createdToDo.click();
+
+            WebElement alarmOffButton = driver.findElement(accessibilityId("bell.slash"));
+            assertTrue(alarmOffButton.isDisplayed(), "기대 결과와 다릅니다. 알람 초기 설정 상태를 확인해주세요.");
+        }
     }
+
 
     private void findAllToDoInRoutineAndCalculateTotalTime() {
         List<WebElement> toDoList = driver.findElements(iOSClassChain("**/XCUIElementTypeCollectionView/**/XCUIElementTypeCell/**/XCUIElementTypeStaticText"));
@@ -459,7 +498,7 @@ public class RoutineTest extends TestBase {
         }
     }
 
-    private void enterBasicInformationRoutineAndToDo(String routineTitle, String toDoTitle) {
+    private void writeBasicInformationRoutineAndToDo(String routineTitle, String toDoTitle) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         routineTab = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("clock.arrow.circlepath")));
         routineTab.click();
@@ -483,7 +522,7 @@ public class RoutineTest extends TestBase {
         String routineTitle = "루틴";
         String toDoTitle = "할 일";
 
-        enterBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
+        writeBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
 
         checkmark = driver.findElement(accessibilityId("checkmark"));
         // 할 일 생성
@@ -530,5 +569,22 @@ public class RoutineTest extends TestBase {
         } else {
             assertEquals(todoTime.getAttribute("name"), expectedMinute + "분");
         }
+    }
+
+    private void enterRoutineTabAndClickRoutineAndToDo(String routineTitle, String toDoTitle) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        routineTab = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("clock.arrow.circlepath")));
+        routineTab.click();
+
+        WebElement createdRoutine = driver.findElement(accessibilityId(routineTitle));
+        createdRoutine.click();
+
+        WebElement createdToDo = driver.findElement(accessibilityId(toDoTitle));
+        createdToDo.click();
+    }
+
+    private void alarmOnOff() {
+        WebElement alarmButton = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name CONTAINS 'bell'`]"));
+        alarmButton.click();
     }
 }
