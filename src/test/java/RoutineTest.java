@@ -370,14 +370,15 @@ public class RoutineTest extends TestBase {
     }
 
     @Nested
-    @DisplayName("액션 연속 실행 및 알람 버튼 동작 테스트")
+    @DisplayName("액션 수정 탭에서 연속 실행 및 알람 버튼 동작 테스트")
     class ToDoPlayButtonTest {
         @Test
         public void 액션_수정_탭에서_액션_알람_버튼_ON() {
             String routineTitle = "미리 등록된 루틴";
             String toDoTitle = "미리 등록된 할 일";
 
-            enterRoutineTabAndClickRoutineAndToDo(routineTitle, toDoTitle);
+            enterRoutineTabAndClickRoutine(routineTitle);
+            clickToDo(toDoTitle);
 
             alarmOnOff();
 
@@ -396,7 +397,8 @@ public class RoutineTest extends TestBase {
             String routineTitle = "미리 등록된 루틴";
             String toDoTitle = "미리 등록된 할 일";
 
-            enterRoutineTabAndClickRoutineAndToDo(routineTitle, toDoTitle);
+            enterRoutineTabAndClickRoutine(routineTitle);
+            clickToDo(toDoTitle);
 
             alarmOnOff();
 
@@ -408,6 +410,62 @@ public class RoutineTest extends TestBase {
 
             WebElement alarmOffButton = driver.findElement(accessibilityId("bell.slash"));
             assertTrue(alarmOffButton.isDisplayed(), "기대 결과와 다릅니다. 알람 초기 설정 상태를 확인해주세요.");
+        }
+
+        @Test
+        public void 액션_수정_탭에서_액션_연속_실행_OFF() {
+            String routineTitle = "미리 등록된 루틴";
+            String toDoTitle = "미리 등록된 할 일";
+
+            enterRoutineTabAndClickRoutine(routineTitle);
+            clickToDo(toDoTitle);
+
+            continuousExecutionOnOff();
+
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
+
+            WebElement createdToDo = driver.findElement(accessibilityId(toDoTitle));
+            createdToDo.click();
+
+            WebElement executionOffButton = driver.findElement(accessibilityId("line.diagonal, 달리기"));
+            assertTrue(executionOffButton.isDisplayed(), "기대 결과와 다릅니다. 알람 초기 설정 상태를 확인해주세요.");
+        }
+
+        @Test
+        public void 액션_수정_탭에서_액션_연속_실행_ON() {
+            String routineTitle = "미리 등록된 루틴";
+            String toDoTitle = "미리 등록된 할 일";
+
+            enterRoutineTabAndClickRoutine(routineTitle);
+            clickToDo(toDoTitle);
+
+            continuousExecutionOnOff();
+
+            checkmark = driver.findElement(accessibilityId("checkmark"));
+            checkmark.click();
+
+            WebElement createdToDo = driver.findElement(accessibilityId(toDoTitle));
+            createdToDo.click();
+
+            WebElement executionOnButton = driver.findElement(accessibilityId("figure.run"));
+            assertTrue(executionOnButton.isDisplayed(), "기대 결과와 다릅니다. 알람 초기 설정 상태를 확인해주세요.");
+        }
+    }
+
+    @Nested
+    @DisplayName("액션 타이머 실행 테스트")
+    class RunToDoTimerTest {
+        @Test
+        public void 루틴_내부_진입_없이_타이머_실행() {
+            String routineTitle = "미리 등록된 루틴";
+
+            enterRoutineTabAndClickRoutine(routineTitle);
+
+            WebElement routineTimerPlayButton = driver.findElement(accessibilityId("play"));
+            routineTimerPlayButton.click();
+
+
         }
     }
 
@@ -574,14 +632,16 @@ public class RoutineTest extends TestBase {
         }
     }
 
-    private void enterRoutineTabAndClickRoutineAndToDo(String routineTitle, String toDoTitle) {
+    private void enterRoutineTabAndClickRoutine(String routineTitle) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         routineTab = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("clock.arrow.circlepath")));
         routineTab.click();
 
         WebElement createdRoutine = driver.findElement(accessibilityId(routineTitle));
         createdRoutine.click();
+    }
 
+    private void clickToDo(String toDoTitle) {
         WebElement createdToDo = driver.findElement(accessibilityId(toDoTitle));
         createdToDo.click();
     }
@@ -589,5 +649,10 @@ public class RoutineTest extends TestBase {
     private void alarmOnOff() {
         WebElement alarmButton = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name CONTAINS 'bell'`]"));
         alarmButton.click();
+    }
+
+    private void continuousExecutionOnOff() {
+        WebElement continuousExecutionButton = driver.findElement(accessibilityId("figure.run"));
+        continuousExecutionButton.click();
     }
 }
