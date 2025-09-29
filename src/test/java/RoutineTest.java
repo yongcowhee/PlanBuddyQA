@@ -475,6 +475,20 @@ public class RoutineTest extends TestBase {
             WebElement currentToDoTitle = driver.findElement(accessibilityId(toDoTitle));
             assertEquals(currentToDoTitle.getAttribute("name"), toDoTitle);
         }
+
+        @Test
+        public void 루틴_내부에서_타이머_실행() {
+            String routineTitle = "미리 등록된 루틴";
+            String toDoTitle = "미리 등록된 할 일";
+
+            enterRoutineTabAndClickRoutine(routineTitle);
+
+            WebElement routineTimerPlayButton = driver.findElement(accessibilityId("play.fill"));
+            routineTimerPlayButton.click();
+
+            WebElement currentToDoTitle = driver.findElement(accessibilityId(toDoTitle));
+            assertEquals(currentToDoTitle.getAttribute("name"), toDoTitle);
+        }
     }
 
     private void findAllToDoInRoutineAndCalculateTotalTime() {
