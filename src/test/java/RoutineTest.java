@@ -512,6 +512,22 @@ public class RoutineTest extends TestBase {
             // assertEquals를 이용한 검증 대신 driver가 해당 요소를 찾지 못하면 화면에 나타나지 않은 것으로 판단하고 에러 발생
             driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name CONTAINS \"" + toDoTitle + "\"`]"));
         }
+
+        @Test
+        public void 루틴_내부_실행_후_뒤로가기_눌렀을때_타이머_유지_테스트() {
+            String routineTitle = "미리 등록된 루틴";
+            String toDoTitle = "미리 등록된 할 일";
+
+            enterRoutineTabAndClickRoutine(routineTitle);
+
+            WebElement routineTimerPlayButton = driver.findElement(accessibilityId("play.fill"));
+            routineTimerPlayButton.click();
+
+            WebElement backButton = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name == \"chevron.backward\"`]"));
+            backButton.click();
+
+            driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name CONTAINS \"" + toDoTitle + "\"`]"));
+        }
     }
 
     private void findAllToDoInRoutineAndCalculateTotalTime() {
