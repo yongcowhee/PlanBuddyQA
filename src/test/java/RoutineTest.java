@@ -457,15 +457,23 @@ public class RoutineTest extends TestBase {
     @DisplayName("액션 타이머 실행 테스트")
     class RunToDoTimerTest {
         @Test
-        public void 루틴_내부_진입_없이_타이머_실행() {
+        public void 루틴_외부에서_타이머_실행() {
             String routineTitle = "미리 등록된 루틴";
+            String toDoTitle = "미리 등록된 할 일";
 
-            enterRoutineTabAndClickRoutine(routineTitle);
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            routineTab = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("clock.arrow.circlepath")));
+            routineTab.click();
 
-            WebElement routineTimerPlayButton = driver.findElement(accessibilityId("play"));
+            WebElement routineTimerPlayButton = driver.findElement
+                    (xpath("//XCUIElementTypeStaticText[@name='" + routineTitle + "']/following-sibling::XCUIElementTypeButton[@name='play']"));
             routineTimerPlayButton.click();
 
-
+            /* 타이머가 정상적으로 실행되는지 확인
+             * 1. 타이머 실행 화면이 떴는가
+             * */
+            WebElement currentToDoTitle = driver.findElement(accessibilityId(toDoTitle));
+            assertEquals(currentToDoTitle.getAttribute("name"), toDoTitle);
         }
     }
 
