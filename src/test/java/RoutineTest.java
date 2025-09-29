@@ -14,8 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.appium.java_client.AppiumBy.*;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.*;
 
 public class RoutineTest extends TestBase {
     WebElement routineTab;
@@ -527,6 +526,65 @@ public class RoutineTest extends TestBase {
             backButton.click();
 
             driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name CONTAINS \"" + toDoTitle + "\"`]"));
+        }
+
+        @Test
+        public void 액션_정지_토글_테스트_루틴_내_액션이_한_개일_때() {
+            String routineTitle = "액션 정지 테스트 루틴";
+            String toDoTitle = "액션 정지 테스트 할 일";
+
+            enterRoutineTabAndClickRoutine(routineTitle);
+
+            WebElement routineTimerPlayButton = driver.findElement(accessibilityId("play.fill"));
+            routineTimerPlayButton.click();
+
+            // 화면에 기대한 할 일 제목이 표시됐는지 확인
+            driver.findElement(accessibilityId(toDoTitle));
+
+            WebElement toggle = driver.findElement(accessibilityId("chevron.up"));
+            toggle.click();
+
+            WebElement pauseButton = driver.findElement(accessibilityId("pause"));
+            pauseButton.click();
+
+            // 정지 버튼 클릭 후 화면에 기대한 재생 버튼이 표시됐는지 확인
+            WebElement playButton = driver.findElement(accessibilityId("play.fill"));
+
+            // 정지한 뒤 액션 제목의 계층에서 타이머 시간을 찾음 (시간, 분, 초가 포함되지 않은 값)
+            String findTimerXpathBeforeReplay = "//XCUIElementTypeStaticText[@name='" + toDoTitle + "']/following-sibling::XCUIElementTypeStaticText" +
+                    "[not(contains(@name, '시간')) and not(contains(@name, '분')) and not(contains(@name, '초'))]";
+            WebElement curPausedTime = driver.findElement(xpath(findTimerXpathBeforeReplay));
+            String curPausedTimeValue = curPausedTime.getAttribute("name");
+
+            // 타이머 다시 재생
+            playButton.click();
+
+            String findTimerXpathAfterReplay = "//XCUIElementTypeStaticText[@name='" + toDoTitle + "']/following-sibling::XCUIElementTypeStaticText" +
+                    "[not(contains(@name, '시간')) and not(contains(@name, '분')) and not(contains(@name, '초'))]";
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            try {
+                WebElement curPlayedTime = wait.until(driver -> {
+                    WebElement timeElement = driver.findElement(xpath(findTimerXpathAfterReplay));
+                    String timeElementValue = timeElement.getAttribute("name");
+
+                    if (!timeElementValue.equals(curPausedTimeValue)) {
+                        return timeElement;
+                    }
+                    return null;
+                });
+
+                assertNotEquals(curPausedTimeValue, curPlayedTime.getAttribute("name"), "타이머 값이 동일합니다.");
+
+            } catch (Exception e) {
+                System.out.println("타이머 값이 10초 동안 변경되지 않았습니다.");
+                fail();
+            }
+        }
+
+        @Test
+        public void 액션_정지_토글_테스트_루틴_내_액션이_여러_개일_때() {
+            
         }
     }
 
