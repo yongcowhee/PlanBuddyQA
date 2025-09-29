@@ -489,6 +489,29 @@ public class RoutineTest extends TestBase {
             WebElement currentToDoTitle = driver.findElement(accessibilityId(toDoTitle));
             assertEquals(currentToDoTitle.getAttribute("name"), toDoTitle);
         }
+
+        @Test
+        public void 루틴_외부_실행_후_뒤로가기_눌렀을때_타이머_유지_테스트() {
+            String routineTitle = "미리 등록된 루틴";
+            String toDoTitle = "미리 등록된 할 일";
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            routineTab = wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("clock.arrow.circlepath")));
+            routineTab.click();
+
+            WebElement routineTimerPlayButton = driver.findElement
+                    (xpath("//XCUIElementTypeStaticText[@name='" + routineTitle + "']/following-sibling::XCUIElementTypeButton[@name='play']"));
+            routineTimerPlayButton.click();
+
+            WebElement currentToDoTitle = driver.findElement(accessibilityId(toDoTitle));
+            assertEquals(currentToDoTitle.getAttribute("name"), toDoTitle);
+
+            WebElement backButton = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name == \"chevron.backward\"`]"));
+            backButton.click();
+
+            // assertEquals를 이용한 검증 대신 driver가 해당 요소를 찾지 못하면 화면에 나타나지 않은 것으로 판단하고 에러 발생
+            driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name CONTAINS \"" + toDoTitle + "\"`]"));
+        }
     }
 
     private void findAllToDoInRoutineAndCalculateTotalTime() {
