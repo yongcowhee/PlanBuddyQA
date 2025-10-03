@@ -177,6 +177,33 @@ public class EventTest extends TestBase {
             WebElement findEvent = driver.findElement(accessibilityId("위쪽 한 개 알람 설정 - 시작 시간에/알람 없음"));
             assertTrue(findEvent.isDisplayed());
         }
+
+        @Test
+        public void 이벤트_등록시_아래쪽_한_개의_알람만_설정() throws InterruptedException {
+            // 알람 없음, 시작 시간에 설정
+            enterBasicEventInformation("아래쪽 한 개 알람 설정 - 알람 없음/시작 시간에", "알람 테스트");
+
+            alarm = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name == \"알람\"`]"));
+            alarm.click();
+
+            firstAlarmSelector = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name == \"시작 시간에\"`]"));
+            secondAlarmSelector = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name == \"없음\"`]"));
+
+            secondAlarmSelector.click();
+            secondAlarm = driver.findElement(accessibilityId("5분 전"));
+            secondAlarm.click();
+
+            firstAlarmSelector.click();
+            firstAlarm = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name == \"없음\"`]"));
+            firstAlarm.click();
+
+            check.click();
+
+            WebElement findEvent = driver.findElement(accessibilityId("아래쪽 한 개 알람 설정 - 알람 없음/시작 시간에"));
+            findEvent.click();
+
+            Thread.sleep(2000);
+        }
     }
 
     private void enterBasicEventInformation(String eventTitle, String eventComment) {
