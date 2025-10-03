@@ -221,6 +221,30 @@ public class EventTest extends TestBase {
         comment.sendKeys(eventComment);
     }
 
+    private WebElement findCreatedEvent(String createdEventName) {
+
+        return driver.findElement(accessibilityId(createdEventName));
+    }
+
+    private void setAlarm(WebElement alarmSelector, String accessibilityId) {
+        alarmSelector.click();
+
+        WebElement choiceAlarm;
+
+        if (accessibilityId.equals("없음")) {
+            try {
+                choiceAlarm = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name == \"없음\"`][2]"));
+            } catch (Exception e) {
+                choiceAlarm = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name == \"없음\"`]"));
+            }
+        } else if (accessibilityId.equals("시작 시간에")) {
+            choiceAlarm = driver.findElement(accessibilityId("시작 시간에"));
+        } else {
+            choiceAlarm = driver.findElement(accessibilityId(accessibilityId));
+        }
+
+        choiceAlarm.click();
+    }
 
     private void ifStartTimeEqualEndTimeModifyEndTimeHourToOneHourLater() {
         // 시간이 같은지 아닌지 비교하고, 종료 시간 늦추기
