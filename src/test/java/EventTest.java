@@ -3,29 +3,38 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.appium.java_client.AppiumBy.*;
+import static io.appium.java_client.AppiumBy.accessibilityId;
+import static io.appium.java_client.AppiumBy.xpath;
 
 public class EventTest extends TestBase {
+    WebElement newEvent;
+    WebElement comment;
+    WebElement startDatePicker;
+    WebElement endDatePicker;
+    WebElement check;
+    WebElement alarm;
+    WebElement firstAlarmSelector;
+    WebElement secondAlarmSelector;
+    WebElement firstAlarm;
+    WebElement secondAlarm;
+
     @Nested
     @DisplayName("이벤트_생성이_잘_되는지_학인")
     class EventCreateTest {
-        WebElement newEvent;
-        WebElement comment;
-        WebElement startDatePicker;
-        WebElement endDatePicker;
-        WebElement check;
-
         @Test
         public void 당일_이벤트_생성() throws InterruptedException {
 
             // 시간선 기준 왼쪽 터치
             touchTimeLineLeftSpace();
 
-            newEvent = driver.findElement(accessibilityId("새로운 이벤트"));
+            newEvent = driver.findElement(accessibilityId("새로운 일정"));
             comment = driver.findElement(xpath("//XCUIElementTypeTextView"));
             check = driver.findElement(accessibilityId("checkmark"));
 
@@ -56,7 +65,7 @@ public class EventTest extends TestBase {
             touchTimeLineLeftSpace();
 
             // 제목, 설명, 체크마트 element 객체 생성
-            newEvent = driver.findElement(accessibilityId("새로운 이벤트"));
+            newEvent = driver.findElement(accessibilityId("새로운 일정"));
             comment = driver.findElement(xpath("//XCUIElementTypeTextView"));
             check = driver.findElement(accessibilityId("checkmark"));
 
@@ -105,7 +114,7 @@ public class EventTest extends TestBase {
             touchTimeLineLeftSpace();
 
             // 제목, 설명, 체크마트 element 객체 생성
-            newEvent = driver.findElement(accessibilityId("새로운 이벤트"));
+            newEvent = driver.findElement(accessibilityId("새로운 일정"));
             comment = driver.findElement(xpath("//XCUIElementTypeTextView"));
             check = driver.findElement(accessibilityId("checkmark"));
 
@@ -138,23 +147,7 @@ public class EventTest extends TestBase {
             // 빈 공간 터치
             touchEventBlankSpace();
 
-            // 시간이 같은지 아닌지 비교하고, 종료 시간 늦추기
-            String startTime = driver.findElement(xpath("(//XCUIElementTypeButton[@name=\"시간 선택기\"])[1]")).getAttribute("value");
-            WebElement endTimePicker = driver.findElement(xpath("(//XCUIElementTypeButton[@name=\"시간 선택기\"])[2]"));
-            String endTime = endTimePicker.getAttribute("value");
-
-            if (startTime.equals(endTime)) {
-                endTimePicker.click();
-                String classChain = "**/XCUIElementTypeWindow/XCUIElementTypeOther[4]/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther/XCUIElementTypeOther[2]/XCUIElementTypeDatePicker/XCUIElementTypePicker/XCUIElementTypePickerWheel[3]";
-                WebElement endTimeHourWheel = driver.findElement(iOSClassChain(classChain));
-                Map<String, Object> params = new HashMap<>();
-                params.put("order", "next");
-                params.put("offset", 0.15);
-                params.put("element", ((RemoteWebElement) endTimeHourWheel).getId());
-                driver.executeScript("mobile: selectPickerWheelValue", params);
-            }
-
-            touchTimeLineLeftSpace();
+            ifStartTimeEqualEndTimeModifyEndTimeHourToOneHourLater();
 
             check.click();
 
@@ -164,5 +157,27 @@ public class EventTest extends TestBase {
             Thread.sleep(2000);
 //            driver.findElement(AppiumBy.xpath("//XCUIElementTypeStaticText[@name=\"미래 이벤트 생성 테스트☁️🎀🌼\"]"));
         }
+    }
+
+    private void ifStartTimeEqualEndTimeModifyEndTimeHourToOneHourLater() {
+        // 시간이 같은지 아닌지 비교하고, 종료 시간 늦추기
+        String startTime = driver.findElement(xpath("(//XCUIElementTypeButton[@name=\"시간 선택기\"])[1]")).getAttribute("value");
+        WebElement endTimePicker = driver.findElement(xpath("(//XCUIElementTypeButton[@name=\"시간 선택기\"])[2]"));
+        String endTime = endTimePicker.getAttribute("value");
+
+        if (startTime.equals(endTime)) {
+            endTimePicker.click();
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement endTimeHourWheel = wait.until(ExpectedConditions.presenceOfElementLocated(xpath("//XCUIElementTypePickerWheel[contains(@value, \"시\")]")));
+            Map<String, Object> params = new HashMap<>();
+            params.put("elementId", ((RemoteWebElement) endTimeHourWheel).getId());
+            params.put("order", "next");
+            params.put("offset", 0.15);
+
+            driver.executeScript("mobile: selectPickerWheelValue", params);
+        }
+
+        touchEventBlankSpace();
     }
 }
