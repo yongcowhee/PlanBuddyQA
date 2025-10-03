@@ -204,6 +204,25 @@ public class EventTest extends TestBase {
 
             Thread.sleep(2000);
         }
+
+        @Test
+        public void 이벤트_생성시_두_개의_알람_설정_무작위_무작위() {
+            // '시작 시간에', '알람 없음'을 제외한 무작위 / '시작 시간에', '알람 없음'을 제외한 무작위
+            enterBasicEventInformation("두 개 알람 설정 - 무작위/무작위", "알람 테스트");
+
+            alarm = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name == \"알람\"`]"));
+            alarm.click();
+
+            firstAlarmSelector = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name == \"시작 시간에\"`]"));
+            secondAlarmSelector = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name == \"없음\"`]"));
+
+            setAlarm(firstAlarmSelector, "30분 전");
+            setAlarm(secondAlarmSelector, "1일 전");
+
+            check.click();
+
+            findCreatedEvent("두 개 알람 설정 - 무작위/무작위");
+        }
     }
 
     private void enterBasicEventInformation(String eventTitle, String eventComment) {
