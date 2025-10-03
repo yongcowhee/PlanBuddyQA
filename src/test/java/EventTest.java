@@ -10,8 +10,8 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.appium.java_client.AppiumBy.accessibilityId;
-import static io.appium.java_client.AppiumBy.xpath;
+import static io.appium.java_client.AppiumBy.*;
+import static org.testng.Assert.assertTrue;
 
 public class EventTest extends TestBase {
     WebElement newEvent;
@@ -158,6 +158,42 @@ public class EventTest extends TestBase {
 //            driver.findElement(AppiumBy.xpath("//XCUIElementTypeStaticText[@name=\"미래 이벤트 생성 테스트☁️🎀🌼\"]"));
         }
     }
+
+    @Nested
+    @DisplayName("이벤트_생성시_알람_설정이_잘_되는지_확인")
+    class EventAlarmTest {
+        @Test
+        public void 이벤트_등록시_위쪽_한_개의_알람만_설정() {
+            // 시작 시간에, 알람 없음 설정
+            enterBasicEventInformation("위쪽 한 개 알람 설정 - 시작 시간에/알람 없음", "알람 테스트");
+
+            alarm = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name == \"알람\"`]"));
+            alarm.click();
+
+            ifStartTimeEqualEndTimeModifyEndTimeHourToOneHourLater();
+
+            check.click();
+
+            WebElement findEvent = driver.findElement(accessibilityId("위쪽 한 개 알람 설정 - 시작 시간에/알람 없음"));
+            assertTrue(findEvent.isDisplayed());
+        }
+    }
+
+    private void enterBasicEventInformation(String eventTitle, String eventComment) {
+        touchTimeLineLeftSpace();
+
+        newEvent = driver.findElement(accessibilityId("새로운 일정"));
+        comment = driver.findElement(xpath("//XCUIElementTypeTextView"));
+        check = driver.findElement(accessibilityId("checkmark"));
+
+        newEvent.click();
+        newEvent.sendKeys(eventTitle);
+
+        // 설명 추가
+        comment.click();
+        comment.sendKeys(eventComment);
+    }
+
 
     private void ifStartTimeEqualEndTimeModifyEndTimeHourToOneHourLater() {
         // 시간이 같은지 아닌지 비교하고, 종료 시간 늦추기
