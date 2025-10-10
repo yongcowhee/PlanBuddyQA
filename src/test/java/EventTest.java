@@ -258,6 +258,44 @@ public class EventTest extends TestBase {
             assertEquals(alarmSettingOne.getAttribute("name"), "시작 시간에", "첫 번째 알람 설정 값이 기대와 다릅니다.");
             assertEquals(alarmSettingTwo.getAttribute("name"), "2일 전", "두 번째 알람 설정 값이 기대와 다릅니다.");
         }
+
+        @Test
+        public void 이벤트_생성시_두_개의_알람_설정_무작위_시작시간에() {
+            String eventTitle = "두 개의 알람 설정 - 무작위/시작 시간에";
+            String comment = "알람 테스트";
+
+            // 이벤트 제목 및 설명 텍스트 입력
+            enterBasicEventInformation(eventTitle, comment);
+
+            // 알람 클릭 -> 알림 ON, 알람 선택기 1,2 찾기 (클래스 변수)
+            clickAlarmAndFindAlarmSelector();
+
+            setAlarm(firstAlarmSelector, "1주 전");
+            setAlarm(secondAlarmSelector, "시작 시간에");
+
+            // 이벤트 시작, 종료 시간이 같을 경우 종료 시간을 한 시간 뒤로 조정
+            ifStartTimeEqualEndTimeModifyEndTimeHourToOneHourLater();
+
+            check.click();
+
+            WebElement createdEvent = findCreatedEvent(eventTitle);
+            String createdEventTitle = createdEvent.getAttribute("name");
+
+            assertTrue(createdEvent.isDisplayed());
+            assertEquals(createdEvent.getAttribute("name"), createdEventTitle);
+
+            createdEvent.click();
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+            WebElement alarmSettingOne = wait.until(ExpectedConditions.presenceOfElementLocated(iOSNsPredicateString("name == \"시작 시간에\" AND label == \"시작 시간에\" AND value == \"시작 시간에\"")));
+            WebElement alarmSettingTwo = driver.findElement(iOSNsPredicateString("name == \"1주 전\" AND label == \"1주 전\" AND value == \"1주 전\""));
+
+
+            // 생성된 알람이 요구사항과 같은지 확인, 시작 시간에가 위로 올라가는 UI 설정이 존재해 순서는 바꿔서 테스트
+            assertEquals(alarmSettingOne.getAttribute("name"), "시작 시간에");
+            assertEquals(alarmSettingTwo.getAttribute("name"), "1주 전");
+        }
     }
 
     private void enterBasicEventInformation(String eventTitle, String eventComment) {
