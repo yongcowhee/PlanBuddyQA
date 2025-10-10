@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.appium.java_client.AppiumBy.*;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 public class EventTest extends TestBase {
@@ -223,6 +224,40 @@ public class EventTest extends TestBase {
 
             findCreatedEvent("두 개 알람 설정 - 무작위/무작위");
         }
+
+        @Test
+        public void 이벤트_생성시_두_개의_알람_설정_시작시간에_무작위() {
+            // 시작시간에 / 시작시간에와 없음을 제외한 무작위
+            String eventTitle = "두 개의 알람 설정 - 시작시간에/무작위";
+            String comment = "알람 테스트";
+
+            enterBasicEventInformation(eventTitle, comment);
+
+            clickAlarmAndFindAlarmSelector();
+
+            setAlarm(secondAlarmSelector, "2일 전");
+
+            ifStartTimeEqualEndTimeModifyEndTimeHourToOneHourLater();
+
+            check.click();
+
+            WebElement createdEvent = findCreatedEvent(eventTitle);
+            String createdEventTitle = createdEvent.getAttribute("name");
+
+            assertTrue(createdEvent.isDisplayed(), "이벤트가 화면에 존재하지 않습니다.");
+            assertEquals(eventTitle, createdEventTitle, "이벤트 제목이 입력값과 다릅니다.");
+
+            createdEvent.click();
+
+            // 이벤트 상세 화면이 완전히 로드될 때까지 명시적으로 대기
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+            WebElement alarmSettingOne = wait.until(ExpectedConditions.presenceOfElementLocated(iOSClassChain("**/XCUIElementTypeStaticText[`name == \"시작 시간에\"`]")));
+            WebElement alarmSettingTwo = driver.findElement(iOSClassChain("**/XCUIElementTypeStaticText[`name == \"2일 전\"`]"));
+
+            assertEquals(alarmSettingOne.getAttribute("name"), "시작 시간에", "첫 번째 알람 설정 값이 기대와 다릅니다.");
+            assertEquals(alarmSettingTwo.getAttribute("name"), "2일 전", "두 번째 알람 설정 값이 기대와 다릅니다.");
+        }
     }
 
     private void enterBasicEventInformation(String eventTitle, String eventComment) {
@@ -285,5 +320,13 @@ public class EventTest extends TestBase {
         }
 
         touchEventBlankSpace();
+    }
+
+    private void clickAlarmAndFindAlarmSelector() {
+        alarm = driver.findElement(iOSClassChain("**/XCUIElementTypeButton[`name == \"알람\"`]"));
+        alarm.click();
+
+        firstAlarmSelector = driver.findElement(iOSNsPredicateString("name == \"시작 시간에\" AND label == \"시작 시간에\" AND value == \"시작 시간에\""));
+        secondAlarmSelector = driver.findElement(iOSNsPredicateString("name == \"없음\" AND label == \"없음\" AND value == \"없음\""));
     }
 }
