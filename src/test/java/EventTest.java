@@ -296,6 +296,43 @@ public class EventTest extends TestBase {
             assertEquals(alarmSettingOne.getAttribute("name"), "시작 시간에");
             assertEquals(alarmSettingTwo.getAttribute("name"), "1주 전");
         }
+
+        @Test
+        public void 이벤트_생성시_두_개의_알람_설정_시작시간에_시작시간에() {
+            String eventTitle = "두 개의 알람 설정 - 시작 시간에/시작 시간에";
+            String comment = "알람 테스트";
+
+            // 이벤트 제목 및 설명 텍스트 입력
+            enterBasicEventInformation(eventTitle, comment);
+
+            // 이벤트 시작, 종료 시간이 같을 경우 종료 시간을 한 시간 뒤로 조정
+            ifStartTimeEqualEndTimeModifyEndTimeHourToOneHourLater();
+
+            // 알람 클릭 -> 알림 ON, 알람 선택기 1,2 찾기 (클래스 변수)
+            clickAlarmAndFindAlarmSelector();
+
+            setAlarm(secondAlarmSelector, "시작 시간에");
+
+            check.click();
+
+            WebElement createdEvent = findCreatedEvent(eventTitle);
+            String createdEventTitle = createdEvent.getAttribute("name");
+
+            assertTrue(createdEvent.isDisplayed());
+            assertEquals(createdEvent.getAttribute("name"), createdEventTitle);
+
+            createdEvent.click();
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+            WebElement alarmSettingOne = wait.until(ExpectedConditions.presenceOfElementLocated(iOSClassChain("**/XCUIElementTypeStaticText[`name == \"시작 시간에\"`][1]")));
+            WebElement alarmSettingTwo = driver.findElement(iOSClassChain("**/XCUIElementTypeStaticText[`name == \"시작 시간에\"`][2]"));
+
+
+            // 생성된 알람이 요구사항과 같은지 확인, 시작 시간에가 위로 올라가는 UI 설정이 존재해 순서는 바꿔서 테스트
+            assertEquals(alarmSettingOne.getAttribute("name"), "시작 시간에");
+            assertEquals(alarmSettingTwo.getAttribute("name"), "시작 시간에");
+        }
     }
 
     private void enterBasicEventInformation(String eventTitle, String eventComment) {
