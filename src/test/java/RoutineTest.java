@@ -3,16 +3,13 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static io.appium.java_client.AppiumBy.*;
 import static org.testng.Assert.*;
@@ -193,7 +190,7 @@ public class RoutineTest extends TestBase {
         @Test
         public void 액션_타이머_시간을_23시_59분으로_설정() {
             String routineTitle = "루틴 생성과 동시에 할일 생성";
-            String toDoTitle = "액션(할일) 둥록 테스트";
+            String toDoTitle = "액션(할일) 등록 테스트";
 
             writeBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
 
@@ -230,7 +227,10 @@ public class RoutineTest extends TestBase {
 
             writeBasicInformationRoutineAndToDo(routineTitle, toDoTitle);
 
-            regulateToDoHourPickerWheel(3);
+            WebElement routineHourPickerWheel = driver.findElement(iOSClassChain(
+                    "**/XCUIElementTypePicker[`name == \"시간\"`]/XCUIElementTypePickerWheel"));
+            routineHourPickerWheel.sendKeys(Integer.toString(3));
+//            regulateToDoHourPickerWheel(3);
             regulateToDoMinutePickerWheel(15);
 
             checkmark = driver.findElement(accessibilityId("checkmark"));
@@ -688,27 +688,9 @@ public class RoutineTest extends TestBase {
         if (targetHour < 0 || targetHour > 23) {
             System.out.println("시간은 음수 혹은 23시 초과로 설정할 수 없습니다.");
         } else {
-            while (true) {
-                WebElement routineHourPickerWheel = driver.findElement(iOSClassChain(
-                        "**/XCUIElementTypePicker[`name == \"시간\"`]/XCUIElementTypePickerWheel"));
-
-                int currentHour = Integer.parseInt(routineHourPickerWheel.getAttribute("value"));
-
-                // 목표 값에 도달했는지 확인
-                if (currentHour == targetHour) {
-                    System.out.println("시간 설정 완료: " + currentHour);
-                    break;
-                }
-
-                String direction = (currentHour > targetHour) ? "previous" : "next";
-
-                Map<String, Object> params = new HashMap<>();
-                params.put("element", ((RemoteWebElement) routineHourPickerWheel).getId());
-                params.put("order", direction);
-                params.put("offset", 0.15);
-
-                driver.executeScript("mobile: selectPickerWheelValue", params);
-            }
+            WebElement routineHourPickerWheel = driver.findElement(iOSClassChain(
+                    "**/XCUIElementTypePicker[`name == \"시간\"`]/XCUIElementTypePickerWheel"));
+            routineHourPickerWheel.sendKeys(Integer.toString(targetHour));
         }
     }
 
@@ -716,27 +698,9 @@ public class RoutineTest extends TestBase {
         if (targetMinute < 0 || targetMinute > 59) {
             System.out.println("분은 음수 혹은 59분 초과로 설정할 수 없습니다.");
         } else {
-            while (true) {
-                WebElement routineHourPickerWheel = driver.findElement(iOSClassChain(
-                        "**/XCUIElementTypePicker[`name == \"분\"`]/XCUIElementTypePickerWheel"));
-
-                int currentHour = Integer.parseInt(routineHourPickerWheel.getAttribute("value"));
-
-                // 목표 값에 도달했는지 확인
-                if (currentHour == targetMinute) {
-                    System.out.println("분 설정 완료: " + currentHour);
-                    break;
-                }
-
-                String direction = (currentHour > targetMinute) ? "previous" : "next";
-
-                Map<String, Object> params = new HashMap<>();
-                params.put("element", ((RemoteWebElement) routineHourPickerWheel).getId());
-                params.put("order", direction);
-                params.put("offset", 0.15);
-
-                driver.executeScript("mobile: selectPickerWheelValue", params);
-            }
+            WebElement routineMinutePickerWheel = driver.findElement(iOSClassChain(
+                    "**/XCUIElementTypePicker[`name == \"분\"`]/XCUIElementTypePickerWheel"));
+            routineMinutePickerWheel.sendKeys(Integer.toString(targetMinute));
         }
     }
 
