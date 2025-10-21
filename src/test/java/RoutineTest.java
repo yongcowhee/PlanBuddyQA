@@ -2,14 +2,20 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static io.appium.java_client.AppiumBy.*;
 import static org.testng.Assert.*;
@@ -645,6 +651,76 @@ public class RoutineTest extends TestBase {
                 assertNotEquals(curPlayedTime.getAttribute("name"), curPausedTimeValue, "타이머 값이 변경되지 않았습니다.");
             } catch (Exception e) {
                 System.out.println("타이머 값이 10초 동안 변경되지 않았습니다.");
+                fail();
+            }
+        }
+
+        @Test
+        public void 알람_ON_푸시_알림이_포그라운드에서_정상적으로_동작하는지_확인() throws InterruptedException {
+            /*
+             * 테스트 편의상 타이머는 모두 1분으로 설정함
+             * 포그라운드에서 푸시 알림이 동작할 경우 알림 센터에 쌓이지 않아 로그로 확인함
+             * */
+
+            String routineTitle = "액션 알람 테스트 - 할 일이 한 개일 때";
+            String toDoTitle = "할 일";
+            enterRoutineTabAndClickRoutine(routineTitle);
+
+            final String expectedNotificationLog = "Got user testing notification with payload";
+
+            WebElement playButton = driver.findElement(accessibilityId("play.fill"));
+            playButton.click();
+
+            // 알람의 초기 상태에 상관 없이, 알람을 반대 상태로 돌려주는 함수 호출 (꺼짐 <-> 켜짐)
+            alarmOnOff();
+
+            try {
+                driver.findElement(accessibilityId("bell"));
+            } catch (Exception e) {
+                System.out.println("알람 초기 설정을 꺼진 상태로 설정 후 재시도 하십시오");
+                fail();
+            }
+
+            // 타이머가 종료돼서 루틴 탭으로 복귀할 때까지 대기
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(70));
+            wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("clock.arrow.circlepath")));
+
+            // 푸시 알림 로그 확인 동작
+            // iOS Driver는 WebDriver를 구현한 것이므로 업캐스팅
+            Wait<WebDriver> waitLog = new FluentWait<WebDriver>(driver)
+                    .withTimeout(Duration.ofSeconds(30))
+                    .pollingEvery(Duration.ofSeconds(2))
+                    .ignoring(Exception.class);
+
+            System.out.println("푸시 알림 로그 대기 시작: " + toDoTitle);
+
+            try {
+                boolean foundLog = waitLog.until(new Function<WebDriver, Boolean>() {
+                    @Override
+                    public Boolean apply(WebDriver webDriver) {
+                        LogEntries logEntries;
+                        try {
+                            logEntries = driver.manage().logs().get("syslog");
+                        } catch (Exception e) {
+                            System.out.println("로그 가져오기 실패: " + e.getMessage());
+                            return false;
+                        }
+
+                        for (LogEntry logEntry : logEntries) {
+                            if (logEntry.getMessage().contains(expectedNotificationLog)) {
+                                System.out.println("✅포그라운드 알림 로그 가져오기 성공: " + logEntry.getMessage());
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                });
+                if (!foundLog) {
+                    System.out.println("푸시 알림 검증 실패: 시간 내에 해당 로그를 찾지 못했습니다.");
+                    fail();
+                }
+            } catch (Exception e) {
+                System.out.println("푸시 알림 검증 실패: " + e.getMessage());
                 fail();
             }
         }
