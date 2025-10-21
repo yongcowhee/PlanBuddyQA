@@ -125,6 +125,25 @@ public class TestBase {
         driver.perform(Arrays.asList(swipe));
     }
 
+    public static void openNotificationCenter() {
+        // 테스트 기기 높이 선정
+        int width = driver.manage().window().getSize().width;
+        int height = driver.manage().window().getSize().height;
+
+        int startX = (int) (width * 0.1);
+        int startY = (int) (height * 0.1) - 50; // 알림센터를 끌어내릴 수 있도록 값 보정
+        int endY = (int) (height * 0.9);
+
+        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+        Sequence swipe = new Sequence(finger, 1);
+        swipe.addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), startX, startY));
+        swipe.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+        swipe.addAction(finger.createPointerMove(Duration.ofMillis(200), PointerInput.Origin.viewport(), startX, endY));
+        swipe.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+        driver.perform(List.of(swipe));
+    }
+
     public static WebElement getStartDatePicker() {
         return driver.findElement(xpath("(//XCUIElementTypeButton[@name=\"날짜 선택기\"])[1]"));
     }
