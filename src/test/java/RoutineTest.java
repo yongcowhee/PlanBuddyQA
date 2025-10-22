@@ -13,6 +13,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -662,11 +663,15 @@ public class RoutineTest extends TestBase {
              * 포그라운드에서 푸시 알림이 동작할 경우 알림 센터에 쌓이지 않아 로그로 확인함
              * */
 
+            // 테스트 시작 시간
+            final long verificationStartTime = Instant.now().toEpochMilli();
+            System.out.println("시작 타임스탬프: " + verificationStartTime);
+
             String routineTitle = "액션 알람 테스트 - 할 일이 한 개일 때";
             String toDoTitle = "할 일";
             enterRoutineTabAndClickRoutine(routineTitle);
 
-            final String expectedNotificationLog = "Got user testing notification with payload";
+            final String expectedNotificationLogMessage = "event = ViewDidAppear";
 
             WebElement playButton = driver.findElement(accessibilityId("play.fill"));
             playButton.click();
@@ -685,11 +690,14 @@ public class RoutineTest extends TestBase {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(70));
             wait.until(ExpectedConditions.presenceOfElementLocated(accessibilityId("clock.arrow.circlepath")));
 
+            // 로그 버퍼 초기화 -> 이전 로그 걸러냄
+            cleanLogsBuffer(driver);
+
             // 푸시 알림 로그 확인 동작
             // iOS Driver는 WebDriver를 구현한 것이므로 업캐스팅
             Wait<WebDriver> waitLog = new FluentWait<WebDriver>(driver)
-                    .withTimeout(Duration.ofSeconds(30))
-                    .pollingEvery(Duration.ofSeconds(2))
+                    .withTimeout(Duration.ofSeconds(10))
+                    .pollingEvery(Duration.ofSeconds(1))
                     .ignoring(Exception.class);
 
             System.out.println("푸시 알림 로그 대기 시작: " + toDoTitle);
@@ -707,9 +715,13 @@ public class RoutineTest extends TestBase {
                         }
 
                         for (LogEntry logEntry : logEntries) {
-                            if (logEntry.getMessage().contains(expectedNotificationLog)) {
-                                System.out.println("✅포그라운드 알림 로그 가져오기 성공: " + logEntry.getMessage());
-                                return true;
+                            // 테스트 시작 이후의 로그 선별
+                            if (logEntry.getTimestamp() >= verificationStartTime) {
+                                System.out.println("현재 메시지: " + logEntry.getMessage() + "현재 타임스탬프: " + logEntry.getTimestamp());
+                                if (logEntry.getMessage().contains(expectedNotificationLogMessage)) {
+                                    System.out.println("✅포그라운드 알림 로그 가져오기 성공: " + logEntry.getMessage());
+                                    return true;
+                                }
                             }
                         }
                         return false;
@@ -875,5 +887,10 @@ public class RoutineTest extends TestBase {
     private void continuousExecutionOnOff() {
         WebElement continuousExecutionButton = driver.findElement(accessibilityId("figure.run"));
         continuousExecutionButton.click();
+    }
+
+    private void cleanLogsBuffer(WebDriver webDriver) {
+        // 로그 한 번 호출해서 비우기
+        webDriver.manage().logs().get("syslog");
     }
 }
