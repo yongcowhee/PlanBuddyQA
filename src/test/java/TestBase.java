@@ -1,5 +1,6 @@
 import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.ios.options.XCUITestOptions;
+import net.sourceforge.tess4j.Tesseract;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.WebElement;
@@ -19,6 +20,7 @@ import static org.openqa.selenium.By.xpath;
 public class TestBase {
     XCUITestOptions options = new XCUITestOptions();
     static IOSDriver driver;
+    static Tesseract tesseract;
 
     static int timeLineLeftX = 96;
     static int timeLineLeftY = 352;
@@ -48,6 +50,14 @@ public class TestBase {
             driver.quit();
             System.out.print("드라이버가 성공적으로 종료되었습니다.");
         }
+    }
+
+    public void setupOCR() {
+        tesseract = new Tesseract();
+        // data 경로 지정
+        tesseract.setDatapath("/opt/homebrew/Cellar/tesseract/5.16.0/share/tessdata");
+        // 인식할 언어 설정
+        tesseract.setLanguage("kor+eng");
     }
 
     public static void touchTimeLineLeftSpace() {
