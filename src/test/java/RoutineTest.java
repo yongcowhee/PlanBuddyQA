@@ -1,9 +1,8 @@
+import net.sourceforge.tess4j.TesseractException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -12,8 +11,13 @@ import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -892,5 +896,30 @@ public class RoutineTest extends TestBase {
     private void cleanLogsBuffer(WebDriver webDriver) {
         // 로그 한 번 호출해서 비우기
         webDriver.manage().logs().get("syslog");
+    }
+
+    private String getTextFromPushNotificationBanner(String imageSavePath) throws IOException, TesseractException {
+        File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+        BufferedImage fullScreenshot = ImageIO.read(screenshot);
+
+        int bannerX = 0;
+        int bannerY = 0;
+        int bannerWidth = fullScreenshot.getWidth();
+        int bannerHeight = (int) (fullScreenshot.getHeight() * 0.15);
+
+        BufferedImage croppedImage = fullScreenshot.getSubimage(bannerX, bannerY, bannerWidth, bannerHeight);
+        // 이미지 저장 경로와 이름 지정
+        String fileName = "push_notification_cropped_+" + LocalDateTime.now() + ".png";
+        File croppedFile = new File(imageSavePath + "/" + fileName);
+
+        // 메모리에 있는 croppedImage를 가져와서 png 형식으로 변환한 뒤 croppedFile이 지정하는 경로에 저장해라
+        ImageIO.write(croppedImage, "png", croppedFile);
+        System.out.println("잘라낸 배너 이미지 저장: " + croppedFile.getAbsolutePath());
+
+        // OCR 텍스트 인식
+        String recognizedText = tesseract.doOCR(croppedImage);
+
+        System.out.println("인식된 텍스트:\n" + recognizedText);
+        return recognizedText;
     }
 }
